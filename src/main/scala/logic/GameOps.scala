@@ -18,7 +18,13 @@ object GameOps {
         cell.content match {
           case CellContent.Mine =>
             val stAfterMines = revealAllMines(gs.state, gs.board)
-            gs.copy(state = stAfterMines, status = GameStatus.Lost, clicks = gs.clicks + 1)
+            gs.copy(
+              state = stAfterMines,
+              status = GameStatus.Lost,
+              clicks = gs.clicks + 1,
+              endedAtMs = Some(System.currentTimeMillis())
+            )
+
 
           case CellContent.Clear =>
             val newState =
@@ -28,7 +34,12 @@ object GameOps {
             val newStatus =
               if (isWin(newState, gs.board)) GameStatus.Won else GameStatus.InProgress
 
-            gs.copy(state = newState, status = newStatus, clicks = gs.clicks + 1)
+            gs.copy(
+              state     = newState,
+              status    = newStatus,
+              clicks    = gs.clicks + 1,
+              endedAtMs = if (newStatus != GameStatus.InProgress) Some(System.currentTimeMillis()) else gs.endedAtMs
+            )
         }
     }
   }

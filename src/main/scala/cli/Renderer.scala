@@ -7,7 +7,8 @@ object Renderer {
   /** Player view: Hidden = ■, Flagged = F, Revealed = number / * (if lost) */
   def printGame(gs: GameState): Unit = {
     val b = gs.board
-    println(s"Status: ${gs.status} | Clicks: ${gs.clicks} | Size: ${b.rows}x${b.cols}")
+    println(s"Status: ${gs.status} | Clicks: ${gs.clicks} | Time elapsed:" +
+      s" ${gs.elapsedSeconds()}s | Size: ${b.rows}x${b.cols}")
     for (r <- 0 until b.rows) {
       val line = (0 until b.cols).map { c =>
         gs.state(r)(c) match {
