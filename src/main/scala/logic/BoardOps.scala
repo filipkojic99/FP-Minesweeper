@@ -1,4 +1,4 @@
-package ops
+package logic
 
 import model._
 

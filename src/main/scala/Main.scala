@@ -1,6 +1,6 @@
 import io.LevelIO
-import ops.BoardOps
-import ops.GameOps
+import logic.BoardOps
+import logic.GameOps
 import cli.Renderer
 import model._
 
