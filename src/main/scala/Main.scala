@@ -1,7 +1,7 @@
-import io.{LevelIO, MoveIO}
+import io.{GameIO, LevelIO, MoveIO}
 import logic.{BoardOps, GameOps}
 import cli.Renderer
-import model._
+import model.*
 
 import scala.io.StdIn
 
@@ -23,7 +23,7 @@ object Main extends App {
   // 3) Loop
   var running = true
   while (running) {
-    print("\nEnter command (L r c | D r c | H | PLAY path | Q): ")
+    print("\nEnter command (L r c | D r c | H | PLAY path | SAVE path | Q): ")
     val line = StdIn.readLine()
     if (line == null) {
       running = false
@@ -74,6 +74,16 @@ object Main extends App {
           } catch {
             case ex: Exception =>
               println(s"Failed to play moves from '$mPath': ${ex.getMessage}")
+          }
+
+        case cmd if cmd.startsWith("SAVE ") =>
+          val savePath = cmd.stripPrefix("SAVE").trim
+          try {
+            GameIO.save(savePath, gs, path)
+            println(s"Game saved to $savePath")
+          } catch {
+            case ex: Exception =>
+              println(s"Failed to save: ${ex.getMessage}")
           }
 
         case _ =>
