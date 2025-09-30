@@ -31,15 +31,22 @@ object GameOps {
               if (cell.adjacentMines == 0) floodReveal(gs.state, gs.board, row, col)
               else setCellState(gs.state, row, col, CellState.Revealed)
 
-            val newStatus =
-              if (isWin(newState, gs.board)) GameStatus.Won else GameStatus.InProgress
+            val newStatus = if (isWin(newState, gs.board)) GameStatus.Won else GameStatus.InProgress
 
-            gs.copy(
-              state     = newState,
-              status    = newStatus,
-              clicks    = gs.clicks + 1,
-              endedAtMs = if (newStatus != GameStatus.InProgress) Some(System.currentTimeMillis()) else gs.endedAtMs
+            val now = System.currentTimeMillis()
+            val ended = if (newStatus != GameStatus.InProgress) Some(now) else gs.endedAtMs
+
+            val base = gs.copy(
+              state = newState,
+              status = newStatus,
+              clicks = gs.clicks + 1,
+              endedAtMs = ended
             )
+
+            if (newStatus == GameStatus.Won)
+              base.copy(score = Some(GameOps.computeScore(base, now)))
+            else
+              base
         }
     }
   }
@@ -136,5 +143,11 @@ object GameOps {
       }
     }
     revealedClear == totalClear
+  }
+
+  /** SCORE = game duration + number of clicks + number of hints * 10. */
+  def computeScore(gs: GameState, nowMs: Long = System.currentTimeMillis()): Int = {
+    val secs = gs.elapsedSeconds(nowMs)
+    (secs + gs.clicks + gs.hintsUsed * 10).toInt
   }
 }

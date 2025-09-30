@@ -43,6 +43,10 @@ object Main extends App {
           Renderer.printGame(gs)
           if (gs.status != GameStatus.InProgress) {
             println(s"\nGame over: ${gs.status}")
+            println(s"Time:  ${gs.elapsedSeconds()}s")
+            println(s"Clicks: ${gs.clicks}")
+            println(s"Hints: ${gs.hintsUsed}")
+            println(s"Score: ${gs.score.getOrElse("--")}")
             running = false
           }
         } else {

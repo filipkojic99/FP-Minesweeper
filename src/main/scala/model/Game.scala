@@ -14,7 +14,9 @@ case class GameState(
                       status: GameStatus,
                       clicks: Int,
                       startedAtMs: Long,
-                      endedAtMs: Option[Long]
+                      endedAtMs: Option[Long],
+                      hintsUsed: Int,
+                      score: Option[Int]
                     ) {
   /** Get game duration in seconds. */
   def elapsedSeconds(nowMs: Long = System.currentTimeMillis()): Long =
@@ -33,7 +35,9 @@ object GameState {
       status       = GameStatus.InProgress,
       clicks       = 0,
       startedAtMs  = System.currentTimeMillis(),  // start timer
-      endedAtMs    = None
+      endedAtMs    = None,
+      hintsUsed    = 0,
+      score        = None
     )
   }
 }
