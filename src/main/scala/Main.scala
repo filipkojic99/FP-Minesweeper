@@ -6,19 +6,33 @@ import model.*
 import scala.io.StdIn
 
 object Main extends App {
-  val path = "levels/beginner/level1.txt"
+  print("Start a NEW game or LOAD a saved one?\nEnter: NEW levelPath | LOAD savePath\n> ")
+  val firstLine = StdIn.readLine().trim
 
-  // 1) Load board
-  val raw = LevelIO.readLevel(path)
-  val board = BoardOps.buildFromChars(raw)
+  var gs: GameState = null
+  var levelPath: String = null
 
-  // 2) New game
-  var gs = GameState.newGame(board)
+  if (firstLine.toUpperCase.startsWith("LOAD ")) {
+    val savePath = firstLine.stripPrefix("LOAD").trim
+    val loaded = GameIO.load(savePath) // (GameState, levelPath)
+    gs = loaded._1
+    levelPath = loaded._2
+    println(s"Loaded game from $savePath")
+    Renderer.printGame(gs)
 
-  println("[DEBUG] Underlying board (mines & numbers):")
-  Renderer.printBoardDebug(board)
-  println()
-  Renderer.printGame(gs)
+  } else if (firstLine.toUpperCase.startsWith("NEW ")) {
+    levelPath = firstLine.stripPrefix("NEW").trim
+    val raw = LevelIO.readLevel(levelPath)
+    val board = BoardOps.buildFromChars(raw)
+    gs = GameState.newGame(board)
+    println("[DEBUG] Underlying board (mines & numbers):")
+    Renderer.printBoardDebug(board)
+    Renderer.printGame(gs)
+
+  } else {
+    println("Invalid start command. Use: NEW levelPath | LOAD savePath")
+    sys.exit(1)
+  }
 
   // 3) Loop
   var running = true
@@ -79,7 +93,7 @@ object Main extends App {
         case cmd if cmd.startsWith("SAVE ") =>
           val savePath = cmd.stripPrefix("SAVE").trim
           try {
-            GameIO.save(savePath, gs, path)
+            GameIO.save(savePath, gs, levelPath)
             println(s"Game saved to $savePath")
           } catch {
             case ex: Exception =>
