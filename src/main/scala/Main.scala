@@ -24,23 +24,26 @@ object Main extends App {
   // 3) Loop
   var running = true
   while (running) {
-    print("\nEnter command (L r c | D r c | Q): ")
+    print("\nEnter command (L r c | D r c | H | Q): ")
     val line = StdIn.readLine()
     if (line == null) { running = false }
     else {
       val s = line.trim.toUpperCase
-      if (s == "Q") running = false
-      else {
-        val parts = s.split("\\s+")
-        if (parts.length == 3 && (parts(0) == "L" || parts(0) == "D")) {
-          // user inputs 1-based; convert to 0-based
-          val r = parts(1).toInt - 1
-          val c = parts(2).toInt - 1
-          parts(0) match {
-            case "L" => gs = GameOps.reveal(gs, r, c)
-            case "D" => gs = GameOps.toggleFlag(gs, r, c)
+      s match {
+        case "Q" =>
+          running = false
+
+        case "H" =>
+          val hint = GameOps.computeHint(gs) // Option[(Char, Int, Int)]
+          hint match {
+            case Some((kind, r, c)) =>
+              val kindStr = if (kind == 'L') "Left-click" else "Unflag"
+              println(s"Hint: $kindStr at (${r + 1}, ${c + 1})")
+              gs = GameOps.applyHint(gs, hint) // apply & increment hintsUsed
+              Renderer.printGame(gs)
+            case None =>
+              println("Hint: no move available")
           }
-          Renderer.printGame(gs)
           if (gs.status != GameStatus.InProgress) {
             println(s"\nGame over: ${gs.status}")
             println(s"Time:  ${gs.elapsedSeconds()}s")
@@ -49,9 +52,28 @@ object Main extends App {
             println(s"Score: ${gs.score.getOrElse("--")}")
             running = false
           }
-        } else {
-          println("Invalid command. Use: L r c | D r c | Q")
-        }
+
+        case _ =>
+          val parts = s.split("\\s+")
+          if (parts.length == 3 && (parts(0) == "L" || parts(0) == "D")) {
+            val r = parts(1).toInt - 1
+            val c = parts(2).toInt - 1
+            gs = parts(0) match {
+              case "L" => GameOps.reveal(gs, r, c)
+              case "D" => GameOps.toggleFlag(gs, r, c)
+            }
+            Renderer.printGame(gs)
+            if (gs.status != GameStatus.InProgress) {
+              println(s"\nGame over: ${gs.status}")
+              println(s"Time:  ${gs.elapsedSeconds()}s")
+              println(s"Clicks: ${gs.clicks}")
+              println(s"Hints: ${gs.hintsUsed}")
+              println(s"Score: ${gs.score.getOrElse("--")}")
+              running = false
+            }
+          } else {
+            println("Invalid command. Use: L r c | D r c | H | Q")
+          }
       }
     }
   }

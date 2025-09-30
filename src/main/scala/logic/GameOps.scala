@@ -1,9 +1,58 @@
 package logic
 
-import model._
+import model.*
+
 import scala.collection.immutable.Queue
+import scala.language.postfixOps
 
 object GameOps {
+
+  /** Hint - unflag misflagged field or click on empty field. */
+  def computeHint(gs: GameState): Option[(Char, Int, Int)] = {
+    if (gs.status != GameStatus.InProgress) return None
+    val b = gs.board
+
+    // misflagged
+    val misflagged = for {
+      r <- 0 until b.rows
+      c <- 0 until b.cols
+      if gs.state(r)(c) == CellState.Flagged
+      if b.grid(r)(c).content == CellContent.Clear
+    } yield ('D', r, c)
+
+    if (misflagged.nonEmpty) return Some(misflagged.head)
+
+    // zero
+    val zeros = for {
+      r <- 0 until b.rows
+      c <- 0 until b.cols
+      if gs.state(r)(c) == CellState.Hidden
+      cell = b.grid(r)(c)
+      if cell.content == CellContent.Clear && cell.adjacentMines == 0
+    } yield ('L', r, c)
+
+    if (zeros.nonEmpty) return Some(zeros.head)
+
+    // any clear
+    val clears = for {
+      r <- 0 until b.rows
+      c <- 0 until b.cols
+      if gs.state(r)(c) == CellState.Hidden
+      if b.grid(r)(c).content == CellContent.Clear
+    } yield ('L', r, c)
+
+    clears.headOption
+  }
+
+  /** Apply a hinted move and increment hintsUsed only when applied. */
+  def applyHint(gs: GameState, moveOpt: Option[(Char, Int, Int)]): GameState = moveOpt match {
+    case Some(('L', r, c)) =>
+      reveal(gs.copy(hintsUsed = gs.hintsUsed + 1), r, c)
+    case Some(('D', r, c)) =>
+      toggleFlag(gs.copy(hintsUsed = gs.hintsUsed + 1), r, c)
+    case _ =>
+      gs
+  }
 
   /** Left click: reveal a cell. If mine -> Lost. If 0 -> flood reveal. */
   def reveal(gs: GameState, row: Int, col: Int): GameState = {
