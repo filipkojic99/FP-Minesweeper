@@ -1,6 +1,5 @@
-import io.LevelIO
-import logic.BoardOps
-import logic.GameOps
+import io.{LevelIO, MoveIO}
+import logic.{BoardOps, GameOps}
 import cli.Renderer
 import model._
 
@@ -15,7 +14,7 @@ object Main extends App {
 
   // 2) New game
   var gs = GameState.newGame(board)
-  
+
   println("[DEBUG] Underlying board (mines & numbers):")
   Renderer.printBoardDebug(board)
   println()
@@ -24,12 +23,13 @@ object Main extends App {
   // 3) Loop
   var running = true
   while (running) {
-    print("\nEnter command (L r c | D r c | H | Q): ")
+    print("\nEnter command (L r c | D r c | H | PLAY path | Q): ")
     val line = StdIn.readLine()
-    if (line == null) { running = false }
-    else {
-      val s = line.trim.toUpperCase
-      s match {
+    if (line == null) {
+      running = false
+    } else {
+      val s = line.trim
+      s.toUpperCase match {
         case "Q" =>
           running = false
 
@@ -53,6 +53,29 @@ object Main extends App {
             running = false
           }
 
+        case up if up.startsWith("PLAY ") =>
+          val mPath = s.stripPrefix("PLAY").trim
+          try {
+            val moves = MoveIO.readMoves(mPath)
+            println(s"Playing ${moves.length} moves from $mPath...\n")
+            moves.zipWithIndex.foreach { case (mv, i) =>
+              println(s"Move ${i + 1}: ${MoveIO.pretty(mv)}")
+              gs = GameOps.applyMove(gs, mv)
+              Renderer.printGame(gs)
+              if (gs.status != GameStatus.InProgress) {
+                println(s"\nGame over: ${gs.status}")
+                println(s"Time:  ${gs.elapsedSeconds()}s")
+                println(s"Clicks: ${gs.clicks}")
+                println(s"Hints: ${gs.hintsUsed}")
+                println(s"Score: ${gs.score.getOrElse("--")}")
+                running = false
+              }
+            }
+          } catch {
+            case ex: Exception =>
+              println(s"Failed to play moves from '$mPath': ${ex.getMessage}")
+          }
+
         case _ =>
           val parts = s.split("\\s+")
           if (parts.length == 3 && (parts(0) == "L" || parts(0) == "D")) {
@@ -72,7 +95,7 @@ object Main extends App {
               running = false
             }
           } else {
-            println("Invalid command. Use: L r c | D r c | H | Q")
+            println("Invalid command. Use: L r c | D r c | H | PLAY path | Q")
           }
       }
     }

@@ -7,6 +7,13 @@ import scala.language.postfixOps
 
 object GameOps {
 
+  /** Apply move. */
+  def applyMove(gs: GameState, move: (Char, Int, Int)): GameState = move match {
+    case ('L', r, c) => reveal(gs, r, c)
+    case ('D', r, c) => toggleFlag(gs, r, c)
+    case _ => gs
+  }
+
   /** Hint - unflag misflagged field or click on empty field. */
   def computeHint(gs: GameState): Option[(Char, Int, Int)] = {
     if (gs.status != GameStatus.InProgress) return None
@@ -118,10 +125,12 @@ object GameOps {
 
   // ---------------- helpers ----------------
 
+  /** Check if field is in bounds. */
   private def inBounds(gs: GameState, r: Int, c: Int): Boolean = {
     r >= 0 && r < gs.board.rows && c >= 0 && c < gs.board.cols
   }
 
+  /** Set state of the cell - hidden, revealed, flagged . */
   private def setCellState(state: Vector[Vector[CellState]], r: Int, c: Int, to: CellState): Vector[Vector[CellState]] = {
     val row = state(r)
     val newRow = row.updated(c, to)
@@ -168,6 +177,7 @@ object GameOps {
     st
   }
 
+  /** Game over - reveal all mines */
   private def revealAllMines(state: Vector[Vector[CellState]], board: Board): Vector[Vector[CellState]] = {
     state.zipWithIndex.map { case (row, r) =>
       row.zipWithIndex.map { case (st, c) =>
@@ -195,7 +205,7 @@ object GameOps {
   }
 
   /** SCORE = game duration + number of clicks + number of hints * 10. */
-  def computeScore(gs: GameState, nowMs: Long = System.currentTimeMillis()): Int = {
+  private def computeScore(gs: GameState, nowMs: Long = System.currentTimeMillis()): Int = {
     val secs = gs.elapsedSeconds(nowMs)
     (secs + gs.clicks + gs.hintsUsed * 10).toInt
   }
