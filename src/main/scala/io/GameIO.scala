@@ -19,20 +19,18 @@ object GameIO {
       pw.println(s"STATUS=${gs.status}")
       pw.println(s"CLICKS=${gs.clicks}")
       pw.println(s"STARTED=${gs.startedAtMs}")
+      pw.println(s"ELAPSED=${gs.elapsedSeconds()}")
       pw.println(s"HINTS=${gs.hintsUsed}")
 
-      // save cell state grid as lines of characters (H=Hidden, R=Revealed, F=Flagged)
       for (row <- gs.state) {
         val line = row.map {
-          case CellState.Hidden   => 'H'
+          case CellState.Hidden => 'H'
           case CellState.Revealed => 'R'
-          case CellState.Flagged  => 'F'
+          case CellState.Flagged => 'F'
         }.mkString
         pw.println(line)
       }
-    } finally {
-      pw.close()
-    }
+    } finally pw.close()
   }
 
   /** Load a saved game. Returns (GameState, levelPath). */
@@ -51,14 +49,25 @@ object GameIO {
       val levelPath = kv("LEVEL")
       val status = GameStatus.valueOf(kv("STATUS"))
       val clicks = kv("CLICKS").toInt
-      val started = kv("STARTED").toLong
       val hints = kv("HINTS").toInt
 
-      // Rebuild board from level file
+      val now = System.currentTimeMillis()
+
+      // Back-compat: ako nema ELAPSED, pokušaj iz STARTED
+      val elapsedSavedSec: Long = kv.get("ELAPSED")
+        .map(_.toLong)
+        .orElse {
+          kv.get("STARTED").map { startedStr =>
+            val started = startedStr.toLong
+            val ms = (now - started).max(0L)
+            ms / 1000L
+          }
+        }
+        .getOrElse(0L)
+
       val raw = LevelIO.readLevel(levelPath)
       val board = BoardOps.buildFromChars(raw)
 
-      // Rebuild state grid
       val state: Vector[Vector[CellState]] = grid.map { line =>
         line.toVector.map {
           case 'H' => CellState.Hidden
@@ -73,15 +82,14 @@ object GameIO {
         state = state,
         status = status,
         clicks = clicks,
-        startedAtMs = started,
-        endedAtMs = None, // never saved if finished
+        startedAtMs = now,
+        endedAtMs = None,
         hintsUsed = hints,
-        score = None
+        score = None,
+        elapsedSavedSec = elapsedSavedSec
       )
 
       (gs, levelPath)
-    } finally {
-      src.close()
-    }
+    } finally src.close()
   }
 }

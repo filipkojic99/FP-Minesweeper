@@ -16,11 +16,14 @@ case class GameState(
                       startedAtMs: Long,
                       endedAtMs: Option[Long],
                       hintsUsed: Int,
-                      score: Option[Int]
+                      score: Option[Int],
+                      elapsedSavedSec: Long // NEW: accumulated elapsed before current run
                     ) {
   /** Get game duration in seconds. */
-  def elapsedSeconds(nowMs: Long = System.currentTimeMillis()): Long =
-    ((endedAtMs.getOrElse(nowMs) - startedAtMs) / 1000L).max(0L)
+  def elapsedSeconds(nowMs: Long = System.currentTimeMillis()): Long = {
+    val currentSec = ((endedAtMs.getOrElse(nowMs) - startedAtMs) / 1000L).max(0L)
+    (elapsedSavedSec + currentSec).max(0L)
+  }
 }
 
 object GameState {
@@ -37,7 +40,8 @@ object GameState {
       startedAtMs  = System.currentTimeMillis(),  // start timer
       endedAtMs    = None,
       hintsUsed    = 0,
-      score        = None
+      score        = None,
+      elapsedSavedSec = 0L
     )
   }
 }
