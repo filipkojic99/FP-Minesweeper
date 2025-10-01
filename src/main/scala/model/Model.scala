@@ -1,7 +1,5 @@
 package model
 
-case class Coord(row: Int, col: Int)
-
 enum CellContent {
   case Mine, Clear
 }

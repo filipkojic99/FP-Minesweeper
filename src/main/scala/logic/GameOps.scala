@@ -1,9 +1,9 @@
 package logic
 
+import logic.BoardOps.neighbors8
 import model.*
 
 import scala.collection.immutable.Queue
-import scala.language.postfixOps
 
 object GameOps {
 
@@ -16,40 +16,39 @@ object GameOps {
 
   /** Hint - unflag misflagged field or click on empty field. */
   def computeHint(gs: GameState): Option[(Char, Int, Int)] = {
-    if (gs.status != GameStatus.InProgress) return None
-    val b = gs.board
+    if (gs.status != GameStatus.InProgress) None
+    else {
+      val b = gs.board
 
-    // misflagged
-    val misflagged = for {
-      r <- 0 until b.rows
-      c <- 0 until b.cols
-      if gs.state(r)(c) == CellState.Flagged
-      if b.grid(r)(c).content == CellContent.Clear
-    } yield ('D', r, c)
+      val misflagged =
+        (for {
+          r <- 0 until b.rows
+          c <- 0 until b.cols
+          if gs.state(r)(c) == CellState.Flagged
+          if b.grid(r)(c).content == CellContent.Clear
+        } yield ('D', r, c)).headOption
 
-    if (misflagged.nonEmpty) return Some(misflagged.head)
+      val zeros =
+        (for {
+          r <- 0 until b.rows
+          c <- 0 until b.cols
+          if gs.state(r)(c) == CellState.Hidden
+          cell = b.grid(r)(c)
+          if cell.content == CellContent.Clear && cell.adjacentMines == 0
+        } yield ('L', r, c)).headOption
 
-    // zero
-    val zeros = for {
-      r <- 0 until b.rows
-      c <- 0 until b.cols
-      if gs.state(r)(c) == CellState.Hidden
-      cell = b.grid(r)(c)
-      if cell.content == CellContent.Clear && cell.adjacentMines == 0
-    } yield ('L', r, c)
+      val clears =
+        (for {
+          r <- 0 until b.rows
+          c <- 0 until b.cols
+          if gs.state(r)(c) == CellState.Hidden
+          if b.grid(r)(c).content == CellContent.Clear
+        } yield ('L', r, c)).headOption
 
-    if (zeros.nonEmpty) return Some(zeros.head)
-
-    // any clear
-    val clears = for {
-      r <- 0 until b.rows
-      c <- 0 until b.cols
-      if gs.state(r)(c) == CellState.Hidden
-      if b.grid(r)(c).content == CellContent.Clear
-    } yield ('L', r, c)
-
-    clears.headOption
+      misflagged orElse zeros orElse clears
+    }
   }
+
 
   /** Apply a hinted move and increment hintsUsed only when applied. */
   def applyHint(gs: GameState, moveOpt: Option[(Char, Int, Int)]): GameState = moveOpt match {
@@ -100,7 +99,8 @@ object GameOps {
             )
 
             if (newStatus == GameStatus.Won)
-              base.copy(score = Some(GameOps.computeScore(base, now)))
+              val stAfterMines = flagAllMines(base.state, base.board)
+              base.copy(state = stAfterMines, score = Some(GameOps.computeScore(base, now)))
             else
               base
         }
@@ -165,7 +165,7 @@ object GameOps {
 
       if (cell.adjacentMines == 0) {
         // all neighbors: reveal hidden ones; push zeros to queue
-        neighborsOf(r, c).foreach { case (nr, nc) =>
+        neighbors8(board, r, c).foreach { case (nr, nc) =>
           if (st(nr)(nc) == CellState.Hidden) {
             st = setCellState(st, nr, nc, CellState.Revealed)
             if (board.grid(nr)(nc).adjacentMines == 0) {
@@ -190,18 +190,29 @@ object GameOps {
     }
   }
 
-  /** Win = all non-mine cells are revealed. */
-  private def isWin(state: Vector[Vector[CellState]], board: Board): Boolean = {
-    var totalClear = 0
-    var revealedClear = 0
-    for (r <- 0 until board.rows; c <- 0 until board.cols) {
-      board.grid(r)(c).content match {
-        case CellContent.Mine => ()
-        case CellContent.Clear =>
-          totalClear += 1
-          if (state(r)(c) == CellState.Revealed) revealedClear += 1
+  /** Game won - flag all mines */
+  private def flagAllMines(state: Vector[Vector[CellState]], board: Board): Vector[Vector[CellState]] = {
+    state.zipWithIndex.map { case (row, r) =>
+      row.zipWithIndex.map { case (st, c) =>
+        board.grid(r)(c).content match {
+          case CellContent.Mine => CellState.Flagged
+          case CellContent.Clear => st
+        }
       }
     }
+  }
+
+  /** Win = all non-mine cells are revealed. */
+  private def isWin(state: Vector[Vector[CellState]], board: Board): Boolean = {
+    val totalClear =
+      (for {r <- 0 until board.rows; c <- 0 until board.cols
+            if board.grid(r)(c).content == CellContent.Clear} yield 1).sum
+
+    val revealedClear =
+      (for {r <- 0 until board.rows; c <- 0 until board.cols
+            if board.grid(r)(c).content == CellContent.Clear
+            if state(r)(c) == CellState.Revealed} yield 1).sum
+
     revealedClear == totalClear
   }
 
