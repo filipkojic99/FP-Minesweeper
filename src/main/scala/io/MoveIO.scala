@@ -3,7 +3,7 @@ package io
 import scala.io.Source
 
 object MoveIO {
-  
+
   /** Parse one line L(r,c) or D(r,c). */
   def parseLine(line: String): Option[(Char, Int, Int)] = {
     val trimmed = line.trim

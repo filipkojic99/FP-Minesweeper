@@ -33,14 +33,14 @@ object GameState {
     val cols = board.cols
     val allHidden = Vector.fill(rows, cols)(CellState.Hidden)
     GameState(
-      board        = board,
-      state        = allHidden,
-      status       = GameStatus.InProgress,
-      clicks       = 0,
-      startedAtMs  = System.currentTimeMillis(),  // start timer
-      endedAtMs    = None,
-      hintsUsed    = 0,
-      score        = None,
+      board = board,
+      state = allHidden,
+      status = GameStatus.InProgress,
+      clicks = 0,
+      startedAtMs = System.currentTimeMillis(), // start timer
+      endedAtMs = None,
+      hintsUsed = 0,
+      score = None,
       elapsedSavedSec = 0L
     )
   }

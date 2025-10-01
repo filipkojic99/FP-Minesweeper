@@ -12,12 +12,12 @@ object Renderer {
     for (r <- 0 until b.rows) {
       val line = (0 until b.cols).map { c =>
         gs.state(r)(c) match {
-          case CellState.Hidden  => "■"
+          case CellState.Hidden => "■"
           case CellState.Flagged => "F"
           case CellState.Revealed =>
             b.grid(r)(c).content match {
-              case CellContent.Mine    => "*" // if revealed (loss) show mine
-              case CellContent.Clear   =>
+              case CellContent.Mine => "*" // if revealed (loss) show mine
+              case CellContent.Clear =>
                 val n = b.grid(r)(c).adjacentMines
                 n.toString
             }
@@ -32,7 +32,7 @@ object Renderer {
     for (r <- 0 until b.rows) {
       val line = (0 until b.cols).map { c =>
         b.grid(r)(c).content match {
-          case CellContent.Mine  => "*"
+          case CellContent.Mine => "*"
           case CellContent.Clear => b.grid(r)(c).adjacentMines.toString
         }
       }.mkString(" ")

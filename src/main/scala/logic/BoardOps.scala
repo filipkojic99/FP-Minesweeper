@@ -20,7 +20,7 @@ object BoardOps {
     grid.zipWithIndex.map { case (row, r) =>
       row.zipWithIndex.map { case (cell, c) =>
         cell.content match {
-          case CellContent.Mine  => cell
+          case CellContent.Mine => cell
           case CellContent.Clear =>
             val count = neighborsOf(b, Coord(r, c))
               .count(p => grid(p.row)(p.col).content == CellContent.Mine)
@@ -32,9 +32,9 @@ object BoardOps {
 
   private def neighborsOf(b: Board, at: Coord): Vector[Coord] = {
     val deltas = Vector(
-      (-1,-1), (-1,0), (-1,1),
-      ( 0,-1),         ( 0,1),
-      ( 1,-1), ( 1,0), ( 1,1)
+      (-1, -1), (-1, 0), (-1, 1),
+      (0, -1), (0, 1),
+      (1, -1), (1, 0), (1, 1)
     )
     deltas.flatMap { case (dr, dc) =>
       val r = at.row + dr

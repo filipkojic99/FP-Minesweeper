@@ -15,27 +15,26 @@ object Main extends App {
   if (firstLine.toUpperCase.startsWith("LOAD ")) {
     val savePath = firstLine.stripPrefix("LOAD").trim
     try {
-        val loaded = GameIO.load(savePath) // (GameState, levelPath)
-        gs = loaded._1
-        levelPath = loaded._2
-        println(s"Loaded game from $savePath")
-        Renderer.printGame(gs)
-    } catch
-      {
-        case ex: Exception =>
-          println(s"Failed to load from '$savePath': ${ex.getMessage}")
-          sys.exit(1)
-      }
+      val loaded = GameIO.load(savePath) // (GameState, levelPath)
+      gs = loaded._1
+      levelPath = loaded._2
+      println(s"Loaded game from $savePath")
+      Renderer.printGame(gs)
+    } catch {
+      case ex: Exception =>
+        println(s"Failed to load from '$savePath': ${ex.getMessage}")
+        sys.exit(1)
+    }
 
   } else if (firstLine.toUpperCase.startsWith("NEW ")) {
     levelPath = firstLine.stripPrefix("NEW").trim
     try {
-        val raw = LevelIO.readLevel(levelPath)
-        val board = BoardOps.buildFromChars(raw)
-        gs = GameState.newGame(board)
-        println("[DEBUG] Underlying board (mines & numbers):")
-        Renderer.printBoardDebug(board)
-        Renderer.printGame(gs)
+      val raw = LevelIO.readLevel(levelPath)
+      val board = BoardOps.buildFromChars(raw)
+      gs = GameState.newGame(board)
+      println("[DEBUG] Underlying board (mines & numbers):")
+      Renderer.printBoardDebug(board)
+      Renderer.printGame(gs)
     } catch {
       case ex: Exception =>
         println(s"Failed to play moves from '$levelPath': ${ex.getMessage}")

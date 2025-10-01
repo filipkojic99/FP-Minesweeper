@@ -144,12 +144,13 @@ object GameOps {
 
     def neighborsOf(r: Int, c: Int): Vector[(Int, Int)] = {
       val deltas = Vector(
-        (-1,-1), (-1,0), (-1,1),
-        ( 0,-1),         ( 0,1),
-        ( 1,-1), ( 1,0), ( 1,1)
+        (-1, -1), (-1, 0), (-1, 1),
+        (0, -1), (0, 1),
+        (1, -1), (1, 0), (1, 1)
       )
       deltas.flatMap { case (dr, dc) =>
-        val nr = r + dr; val nc = c + dc
+        val nr = r + dr;
+        val nc = c + dc
         if (nr >= 0 && nr < board.rows && nc >= 0 && nc < board.cols) Some((nr, nc)) else None
       }
     }
@@ -182,8 +183,8 @@ object GameOps {
     state.zipWithIndex.map { case (row, r) =>
       row.zipWithIndex.map { case (st, c) =>
         board.grid(r)(c).content match {
-          case CellContent.Mine    => CellState.Revealed
-          case CellContent.Clear   => st
+          case CellContent.Mine => CellState.Revealed
+          case CellContent.Clear => st
         }
       }
     }
@@ -195,7 +196,7 @@ object GameOps {
     var revealedClear = 0
     for (r <- 0 until board.rows; c <- 0 until board.cols) {
       board.grid(r)(c).content match {
-        case CellContent.Mine  => ()
+        case CellContent.Mine => ()
         case CellContent.Clear =>
           totalClear += 1
           if (state(r)(c) == CellState.Revealed) revealedClear += 1
