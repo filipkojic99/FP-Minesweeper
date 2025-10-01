@@ -142,19 +142,6 @@ object GameOps {
     var st = state
     var q = Queue((startR, startC))
 
-    def neighborsOf(r: Int, c: Int): Vector[(Int, Int)] = {
-      val deltas = Vector(
-        (-1, -1), (-1, 0), (-1, 1),
-        (0, -1), (0, 1),
-        (1, -1), (1, 0), (1, 1)
-      )
-      deltas.flatMap { case (dr, dc) =>
-        val nr = r + dr;
-        val nc = c + dc
-        if (nr >= 0 && nr < board.rows && nc >= 0 && nc < board.cols) Some((nr, nc)) else None
-      }
-    }
-
     // reveal the starting cell if hidden/flagged
     st = setCellState(st, startR, startC, CellState.Revealed)
 

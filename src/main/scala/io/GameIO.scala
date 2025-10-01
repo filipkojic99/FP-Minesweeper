@@ -52,8 +52,7 @@ object GameIO {
       val hints = kv("HINTS").toInt
 
       val now = System.currentTimeMillis()
-
-      // Back-compat: ako nema ELAPSED, pokušaj iz STARTED
+      
       val elapsedSavedSec: Long = kv.get("ELAPSED")
         .map(_.toLong)
         .orElse {
