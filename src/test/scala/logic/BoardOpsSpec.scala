@@ -57,7 +57,7 @@ class BoardOpsSpec extends AnyFlatSpec with Matchers {
       Vector(1, 2, 0, 3, 0)
     )
 
-    val actual = board.grid.map( row => {
+    val actual = board.grid.map(row => {
       row.map {
         cell => cell.adjacentMines
       }

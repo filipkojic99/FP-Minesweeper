@@ -53,5 +53,5 @@ class ToggleFlagSpec extends AnyFlatSpec with Matchers {
     val res = GameOps.toggleFlag(gs, 2, -1)
     res shouldBe gs
   }
-  
+
 }

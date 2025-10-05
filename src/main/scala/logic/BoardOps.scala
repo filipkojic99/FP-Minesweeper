@@ -37,12 +37,12 @@ object BoardOps {
     }
   }
 
-  /** Return vector of neighbour coordinates.  */
+  /** Return vector of neighbour coordinates. */
   private def neighborsOf(b: Board, r: Int, c: Int): Vector[(Int, Int)] = {
     val deltas = Vector(
       (-1, -1), (-1, 0), (-1, 1),
-      ( 0, -1),          ( 0,  1),
-      ( 1, -1), ( 1,  0), ( 1, 1)
+      (0, -1), (0, 1),
+      (1, -1), (1, 0), (1, 1)
     )
     deltas.flatMap { case (dr, dc) =>
       val rr = r + dr

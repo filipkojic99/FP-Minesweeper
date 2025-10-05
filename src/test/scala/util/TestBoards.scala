@@ -33,6 +33,22 @@ object TestBoards {
     )
   }
 
+  def mkGame(board: Board, state: Vector[Vector[CellState]],
+             status: GameStatus = GameStatus.InProgress,
+             clicks: Int = 0,
+             hintsUsed: Int = 0,
+             elapsedSavedSec: Long = 0L): GameState =
+    GameState(
+      board = board,
+      state = state,
+      status = status,
+      clicks = clicks,
+      startedAtMs = System.currentTimeMillis(),
+      endedAtMs = None,
+      hintsUsed = hintsUsed,
+      score = None,
+      elapsedSavedSec = elapsedSavedSec
+    )
 
   private def simpleBoard(): Board = Board(Vector(
     Vector(Cell(CellContent.Clear, 1), Cell(CellContent.Mine, 0)),
