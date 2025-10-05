@@ -2,7 +2,6 @@ package logic
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import logic.BoardOps
 import model.*
 
 class BoardOpsSpec extends AnyFlatSpec with Matchers {
