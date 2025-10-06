@@ -53,16 +53,7 @@ object GameIO {
 
       val now = System.currentTimeMillis()
 
-      val elapsedSavedSec: Long = kv.get("ELAPSED")
-        .map(_.toLong)
-        .orElse {
-          kv.get("STARTED").map { startedStr =>
-            val started = startedStr.toLong
-            val ms = (now - started).max(0L)
-            ms / 1000L
-          }
-        }
-        .getOrElse(0L)
+      val elapsedSavedSec: Long = kv.get("ELAPSED").map(_.toLong).getOrElse(0L).max(0L)
 
       val raw = LevelIO.readLevel(levelPath)
       val board = BoardOps.buildFromChars(raw)

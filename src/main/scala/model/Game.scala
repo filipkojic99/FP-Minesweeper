@@ -17,7 +17,7 @@ case class GameState(
                       endedAtMs: Option[Long],
                       hintsUsed: Int,
                       score: Option[Int],
-                      elapsedSavedSec: Long // NEW: accumulated elapsed before current run
+                      elapsedSavedSec: Long // accumulated elapsed before current run
                     ) {
   /** Get game duration in seconds. */
   def elapsedSeconds(nowMs: Long = System.currentTimeMillis()): Long = {
