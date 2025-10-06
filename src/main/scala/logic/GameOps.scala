@@ -3,6 +3,7 @@ package logic
 import logic.BoardOps.neighbors8
 import model.*
 
+import scala.annotation.tailrec
 import scala.collection.immutable.Queue
 
 object GameOps {
@@ -139,30 +140,43 @@ object GameOps {
 
   /** Reveal all connected zeros plus their border numbers (classic flood). */
   private def floodReveal(state: Vector[Vector[CellState]], board: Board, startR: Int, startC: Int): Vector[Vector[CellState]] = {
-    var st = state
-    var q = Queue((startR, startC))
+    // Reveal the starting cell
+    val revealedStart = setCellState(state, startR, startC, CellState.Revealed)
+    val initialQueue = Queue((startR, startC))
 
-    // reveal the starting cell if hidden/flagged
-    st = setCellState(st, startR, startC, CellState.Revealed)
+    @tailrec
+    def bfs(currentState: Vector[Vector[CellState]], queue: Queue[(Int, Int)]): Vector[Vector[CellState]] = {
+      if (queue.isEmpty) {
+        // No more cells to process - finished flood reveal
+        currentState
+      } else {
+        val ((row, col), remainingQueue) = queue.dequeue
+        var updatedState = currentState
+        var updatedQueue = remainingQueue
+        val cell = board.grid(row)(col)
 
-    while (q.nonEmpty) {
-      val ((r, c), q2) = q.dequeue
-      q = q2
-      val cell = board.grid(r)(c)
+        // Expand only if the current cell has zero adjacent mines
+        if (cell.adjacentMines == 0) {
+          neighbors8(board, row, col).foreach { case (nRow, nCol) =>
+            if (updatedState(nRow)(nCol) == CellState.Hidden) {
+              // Reveal the neighbor
+              updatedState = setCellState(updatedState, nRow, nCol, CellState.Revealed)
 
-      if (cell.adjacentMines == 0) {
-        // all neighbors: reveal hidden ones; push zeros to queue
-        neighbors8(board, r, c).foreach { case (nr, nc) =>
-          if (st(nr)(nc) == CellState.Hidden) {
-            st = setCellState(st, nr, nc, CellState.Revealed)
-            if (board.grid(nr)(nc).adjacentMines == 0) {
-              q = q.enqueue((nr, nc))
+              // If neighbor is also a zero-cell, enqueue it for further expansion
+              if (board.grid(nRow)(nCol).adjacentMines == 0) {
+                updatedQueue = updatedQueue.enqueue((nRow, nCol))
+              }
             }
           }
         }
+
+        // continue BFS with new state and queue
+        bfs(updatedState, updatedQueue)
       }
     }
-    st
+
+    // Start BFS flood reveal
+    bfs(revealedStart, initialQueue)
   }
 
   /** Game over - reveal all mines */
