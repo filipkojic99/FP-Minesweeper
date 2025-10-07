@@ -39,4 +39,16 @@ object Renderer {
       println(line)
     }
   }
+
+  /** Prints level - # = Mine, - = Clear. */
+  def printLevel(level: Level): Unit = {
+    println(s"Level: ${level.rows} x ${level.cols}")
+    level.cells.foreach { row =>
+      val line = row.map {
+        case CellContent.Mine => "#"
+        case CellContent.Clear => "-"
+      }.mkString(" ")
+      println(line)
+    }
+  }
 }
