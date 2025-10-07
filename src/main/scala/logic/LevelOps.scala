@@ -1,0 +1,5 @@
+package logic
+
+object LevelOps {
+
+}

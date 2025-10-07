@@ -55,7 +55,7 @@ class IOSpec extends AnyFlatSpec with Matchers {
       elapsedSavedSec = 12
     )
 
-    val path = "saves/test.txt"
+    val path = "src/test/resources/test.txt"
 
     GameIO.save(path, gs, "src/test/resources/testIO.txt")
 
