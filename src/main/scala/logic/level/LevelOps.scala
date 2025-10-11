@@ -75,6 +75,10 @@ object LevelOps {
     }
   }
 
+  /** Clear rectangle from mines (set all cells inside to Clear). */
+  def clearRect(level: Level, r1: Int, c1: Int, r2: Int, c2: Int): Option[Level] =
+    modifyRect(level, r1, c1, r2, c2)(_ => CellContent.Clear)
+
   /** Apply a function to the cell at (r,c). */
   private def modifyAt(level: Level, r: Int, c: Int)(f: CellContent => CellContent): Option[Level] = {
     val rows = level.rows
@@ -87,10 +91,6 @@ object LevelOps {
       Some(level.copy(cells = cells2))
     }
   }
-
-  /** Clear rectangle from mines (set all cells inside to Clear). */
-  def clearRect(level: Level, r1: Int, c1: Int, r2: Int, c2: Int): Option[Level] =
-    modifyRect(level, r1, c1, r2, c2)(_ => CellContent.Clear)
 
   /** Apply a function to every cell inside the rectangle (inclusive). */
   private def modifyRect(
