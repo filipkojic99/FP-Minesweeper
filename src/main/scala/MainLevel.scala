@@ -7,35 +7,7 @@ import logic.level.*
 
 object MainLevel {
 
-  private def parseDifficulty(s: String): Option[LevelDifficulty] =
-    s.toLowerCase match {
-      case "b" | "beginner"     => Some(LevelDifficulty.Beginner)
-      case "i" | "intermediate" => Some(LevelDifficulty.Intermediate)
-      case "e" | "expert"       => Some(LevelDifficulty.Expert)
-      case _ => None
-    }
-
-  private def help(): Unit = {
-    println(
-      """Commands:
-        |  show
-        |  addrow top|bottom
-        |  addcol left|right
-        |  removerow top|bottom
-        |  removecol left|right
-        |  toggle r c
-        |  clear r1 c1 r2 c2
-        |  validate
-        |  save beginner|intermediate|expert
-        |  help
-        |  quit
-        |""".stripMargin)
-  }
-
   def main(args: Array[String]): Unit = {
-    // Inicijalni level:
-    // - ako je prosleđen path, učitaj iz fajla
-    // - inače prazna 8x8 mapa
     var level: Level =
       if (args.nonEmpty) {
         val chars = LevelIO.readLevel(args(0))
@@ -88,7 +60,6 @@ object MainLevel {
             case _        => println("Use: removerow top|bottom"); null
           }
           if (edge != null) {
-            // no-op ako je previše malo redova
             level =
               if (level.rows <= 1) { println("Cannot remove last row."); level }
               else LevelOps.removeRow(level, edge)
@@ -102,7 +73,6 @@ object MainLevel {
             case _       => println("Use: removecol left|right"); null
           }
           if (edge != null) {
-            // no-op ako je previše malo kolona
             level =
               if (level.cols <= 1) { println("Cannot remove last column."); level }
               else LevelOps.removeCol(level, edge)
@@ -160,5 +130,30 @@ object MainLevel {
           println(s"Unknown command: ${other.mkString(" ")}  (type 'help')")
       }
     }
+  }
+
+  private def parseDifficulty(s: String): Option[LevelDifficulty] =
+    s.toLowerCase match {
+      case "b" | "beginner" => Some(LevelDifficulty.Beginner)
+      case "i" | "intermediate" => Some(LevelDifficulty.Intermediate)
+      case "e" | "expert" => Some(LevelDifficulty.Expert)
+      case _ => None
+    }
+
+  private def help(): Unit = {
+    println(
+      """Commands:
+        |  show
+        |  addrow top|bottom
+        |  addcol left|right
+        |  removerow top|bottom
+        |  removecol left|right
+        |  toggle r c
+        |  clear r1 c1 r2 c2
+        |  validate
+        |  save beginner|intermediate|expert
+        |  help
+        |  quit
+        |""".stripMargin)
   }
 }

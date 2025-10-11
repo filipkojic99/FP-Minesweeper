@@ -72,11 +72,11 @@ object LevelValidate {
 
   /** Returns true if all rows have the same number of columns. */
   private def isRectangular(level: Level): Boolean =
-    level.cells.isEmpty || level.cells.map(_.length).distinct.lengthCompare(1) == 0
+    level.cells.isEmpty || level.cells.map(_.length).distinct.size == 1
 
   /** Count all mines in the grid. */
   private def mineCount(level: Level): Int =
-    level.cells.iterator.flatMap(_.iterator).count(_ == CellContent.Mine)
+    level.cells.flatten.count(_ == CellContent.Mine)
 
   /**
    * Compute the minimum and maximum number of mines based on the percentage
