@@ -25,7 +25,7 @@ class LevelValidateSpec extends AnyFlatSpec with Matchers {
     res.isRight shouldBe true
   }
 
-   it should "classify 100 cells as Beginner (within bounds)" in {
+  it should "classify 100 cells as Beginner (within bounds)" in {
     val level: Level = TestLevels.beginnerLevel()
 
     val res = LevelValidate.validate(level)
@@ -160,7 +160,7 @@ class LevelValidateSpec extends AnyFlatSpec with Matchers {
     info.minMines shouldBe 1
     info.maxMines shouldBe 1
   }
-  
+
   "LevelValidate.validate()" should "return both NotRectangular and OutsideRanges when non-rectangular level has > 450 cells" in {
     val fullRows: Vector[Vector[CellContent]] = Vector.fill(20)(Vector.fill(22)(CellContent.Clear))
     val shortRow: Vector[CellContent] = Vector.fill(21)(CellContent.Clear)
@@ -173,7 +173,7 @@ class LevelValidateSpec extends AnyFlatSpec with Matchers {
     errs should contain(NotRectangular)
     errs should contain(OutsideRanges)
   }
-  
+
   it should "accept a valid Beginner example (e.g., 5x5 with 3 mines) and return proper info" in {
     val level = TestLevels.validLevel()
 

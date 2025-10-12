@@ -11,7 +11,7 @@ final case class CentralSymmetry(
                                 ) extends Iso with IsoHelpers {
 
   def apply(level: Level): Level = {
-    val rotateOnce  = Rotate90(sector, center, RotationDir.CW, merge, boundary)
+    val rotateOnce = Rotate90(sector, center, RotationDir.CW, merge, boundary)
     rotateOnce.andThen(rotateOnce)(level) // 90° + 90° = 180°
   }
 

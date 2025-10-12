@@ -6,10 +6,10 @@ import model.CellContent
 case class Sector(r1: Int, c1: Int, r2: Int, c2: Int) {
 
   def normalized: Sector = {
-    val top    = math.min(r1, r2)
-    val left   = math.min(c1, c2)
+    val top = math.min(r1, r2)
+    val left = math.min(c1, c2)
     val bottom = math.max(r1, r2)
-    val right  = math.max(c1, c2)
+    val right = math.max(c1, c2)
     Sector(top, left, bottom, right)
   }
 
@@ -31,13 +31,17 @@ object Axis {
 
   case class Col(c: Int) extends Axis
 
-  enum DiagonalKind { case Main, Anti }
+  enum DiagonalKind {
+    case Main, Anti
+  }
 
   case class Diagonal(kind: DiagonalKind) extends Axis
 }
 
 /** Rotation direction. */
-enum RotationDir { case CW, CCW }
+enum RotationDir {
+  case CW, CCW
+}
 
 /** Merge image with original. */
 sealed trait MergeMode {
@@ -66,5 +70,5 @@ object BoundaryMode {
   case object Expanding extends BoundaryMode
 
   /** Non - expandable - ignore fields outside the bounds. */
-  case object Clipping  extends BoundaryMode
+  case object Clipping extends BoundaryMode
 }

@@ -3,9 +3,13 @@ package logic.level
 import io.LevelIO
 import model.*
 
-enum RowEdge { case Top, Bottom }
+enum RowEdge {
+  case Top, Bottom
+}
 
-enum ColEdge { case Left, Right }
+enum ColEdge {
+  case Left, Right
+}
 
 object LevelOps {
 
@@ -48,7 +52,7 @@ object LevelOps {
     if (level.rows <= 1) level
     else {
       val updated = edge match {
-        case RowEdge.Top    => level.cells.tail
+        case RowEdge.Top => level.cells.tail
         case RowEdge.Bottom => level.cells.init
       }
       level.copy(cells = updated)
@@ -60,7 +64,7 @@ object LevelOps {
     if (level.cols <= 1) level
     else {
       val updated = edge match {
-        case ColEdge.Left  => level.cells.map(_.tail)
+        case ColEdge.Left => level.cells.map(_.tail)
         case ColEdge.Right => level.cells.map(_.init)
       }
       level.copy(cells = updated)

@@ -184,14 +184,14 @@ class LevelOpsSpec extends AnyFlatSpec with Matchers {
   "LevelOps: clearRect()" should "clear an inclusive in-bounds rectangle" in {
     val level = TestLevels.sampleLevel()
     val resOpt = LevelOps.clearRect(level, 0, 0, 1, 2)
-    
+
     resOpt.isDefined shouldBe true
     val res = resOpt.get
-    
+
     for (r <- 0 to 1; c <- 0 to 2) {
       res.cells(r)(c) shouldBe CellContent.Clear
     }
-    
+
     // content outside of the bounds stays the same
     res.cells(2)(1) shouldBe level.cells(2)(1)
     res.cells(4)(4) shouldBe level.cells(4)(4)

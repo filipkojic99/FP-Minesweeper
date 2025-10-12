@@ -1,7 +1,10 @@
 package logic.level
+
 import model.{Level, CellContent}
 
-enum LevelDifficulty { case Beginner, Intermediate, Expert }
+enum LevelDifficulty {
+  case Beginner, Intermediate, Expert
+}
 
 /** Holds the computed validation data for a level. */
 final case class ValidationInfo(
@@ -17,13 +20,13 @@ final case class ValidationInfo(
 sealed trait ValidationError
 
 /** Level rows are not rectangular (different lengths). */
-case object NotRectangular  extends ValidationError
+case object NotRectangular extends ValidationError
 
 /** The number of mines is outside of allowed range for this difficulty. */
 case object MinesOutOfRange extends ValidationError
 
 /** The total board size is outside of supported limits. */
-case object OutsideRanges   extends ValidationError
+case object OutsideRanges extends ValidationError
 
 object LevelValidate {
 

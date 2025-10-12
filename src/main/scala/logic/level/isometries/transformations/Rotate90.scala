@@ -4,12 +4,12 @@ import logic.level.isometries.{BoundaryMode, Iso, IsoHelpers, MergeMode, Rotatio
 import model.{CellContent, Level}
 
 case class Rotate90(
-                           sector: Sector,
-                           center: (Int, Int),
-                           dir: RotationDir,
-                           merge: MergeMode,
-                           boundary: BoundaryMode
-                         ) extends Iso with IsoHelpers {
+                     sector: Sector,
+                     center: (Int, Int),
+                     dir: RotationDir,
+                     merge: MergeMode,
+                     boundary: BoundaryMode
+                   ) extends Iso with IsoHelpers {
 
   def apply(level: Level): Level = {
     val n = sector.normalized
@@ -20,14 +20,14 @@ case class Rotate90(
   }
 
   def inverse: Iso = copy(dir = dir match {
-    case RotationDir.CW  => RotationDir.CCW
+    case RotationDir.CW => RotationDir.CCW
     case RotationDir.CCW => RotationDir.CW
   })
 
   private def mapRC(r: Int, c: Int): (Int, Int) = {
     val (cr, cc) = center
     dir match {
-      case RotationDir.CW  => (cr + (c - cc), cc - (r - cr))
+      case RotationDir.CW => (cr + (c - cc), cc - (r - cr))
       case RotationDir.CCW => (cr - (c - cc), cc + (r - cr))
     }
   }

@@ -14,6 +14,7 @@ trait Iso {
 }
 
 trait IsoHelpers {
+
   import model.{CellContent, Level}
   import logic.level.isometries.{BoundaryMode, MergeMode, Sector}
 
@@ -21,7 +22,7 @@ trait IsoHelpers {
     r >= 0 && r < lv.rows && c >= 0 && c < lv.cols
 
   protected inline def setAt(lv: Level, r: Int, c: Int, v: CellContent): Level = {
-    val row2   = lv.cells(r).updated(c, v)
+    val row2 = lv.cells(r).updated(c, v)
     val cells2 = lv.cells.updated(r, row2)
     lv.copy(cells = cells2)
   }
@@ -33,7 +34,7 @@ trait IsoHelpers {
                         )(mapRC: (Int, Int) => (Int, Int)): Vector[((Int, Int), CellContent)] =
     (n.r1 to n.r2).iterator.flatMap { r =>
       (n.c1 to n.c2).iterator.map { c =>
-        val v      = level.cells(r)(c)
+        val v = level.cells(r)(c)
         val (rp, cp) = mapRC(r, c)
         ((rp, cp), v)
       }
@@ -52,7 +53,7 @@ trait IsoHelpers {
     val minC = img.map(_._1._2).min
     val maxC = img.map(_._1._2).max
 
-    val newTop  = math.min(0, minR)
+    val newTop = math.min(0, minR)
     val newLeft = math.min(0, minC)
     val newRows = math.max(level.rows - newTop, maxR - newTop + 1)
     val newCols = math.max(level.cols - newLeft, maxC - newLeft + 1)
@@ -60,7 +61,7 @@ trait IsoHelpers {
     if (newRows == level.rows && newCols == level.cols && newTop == 0 && newLeft == 0)
       (level, 0, 0)
     else {
-      val blank  = Vector.fill(newRows, newCols)(CellContent.Clear)
+      val blank = Vector.fill(newRows, newCols)(CellContent.Clear)
       val copied =
         (0 until level.rows).foldLeft(Level(blank)) { (acc, r) =>
           (0 until level.cols).foldLeft(acc) { (acc2, c) =>
@@ -74,7 +75,7 @@ trait IsoHelpers {
   /** 3) Clear: erase the original sector (with offsets). */
   protected def clearSector(base: Level, n: Sector, rOff: Int, cOff: Int): Level = {
     var acc = base
-    var r   = n.r1
+    var r = n.r1
     while (r <= n.r2) {
       var c = n.c1
       while (c <= n.c2) {

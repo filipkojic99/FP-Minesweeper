@@ -4,12 +4,12 @@ import logic.level.isometries.*
 import model.Level
 
 case class Translate(
-                            sector: Sector,
-                            dy: Int, // +down, -up
-                            dx: Int, // +right, -left
-                            merge: MergeMode,
-                            boundary: BoundaryMode
-                          ) extends Iso with IsoHelpers {
+                      sector: Sector,
+                      dy: Int, // +down, -up
+                      dx: Int, // +right, -left
+                      merge: MergeMode,
+                      boundary: BoundaryMode
+                    ) extends Iso with IsoHelpers {
 
   def apply(level: Level): Level = {
     val n = sector.normalized

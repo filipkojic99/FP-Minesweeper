@@ -12,8 +12,8 @@ object MainLevel {
       if (args.nonEmpty) {
         val chars = LevelIO.readLevel(args(0))
         val cells = chars.map(_.map {
-          case '#'=> CellContent.Mine
-          case _  => CellContent.Clear
+          case '#' => CellContent.Mine
+          case _ => CellContent.Clear
         })
         Level(cells)
       } else {
@@ -33,9 +33,9 @@ object MainLevel {
 
         case "addrow" :: where :: Nil =>
           val edge = where.toLowerCase match {
-            case "top"    => RowEdge.Top
+            case "top" => RowEdge.Top
             case "bottom" => RowEdge.Bottom
-            case _        => println("Use: addrow top|bottom"); null
+            case _ => println("Use: addrow top|bottom"); null
           }
           if (edge != null) {
             level = LevelOps.addRow(level, edge, CellContent.Clear)
@@ -44,9 +44,9 @@ object MainLevel {
 
         case "addcol" :: where :: Nil =>
           val edge = where.toLowerCase match {
-            case "left"  => ColEdge.Left
+            case "left" => ColEdge.Left
             case "right" => ColEdge.Right
-            case _       => println("Use: addcol left|right"); null
+            case _ => println("Use: addcol left|right"); null
           }
           if (edge != null) {
             level = LevelOps.addCol(level, edge, CellContent.Clear)
@@ -55,26 +55,30 @@ object MainLevel {
 
         case "removerow" :: where :: Nil =>
           val edge = where.toLowerCase match {
-            case "top"    => RowEdge.Top
+            case "top" => RowEdge.Top
             case "bottom" => RowEdge.Bottom
-            case _        => println("Use: removerow top|bottom"); null
+            case _ => println("Use: removerow top|bottom"); null
           }
           if (edge != null) {
             level =
-              if (level.rows <= 1) { println("Cannot remove last row."); level }
+              if (level.rows <= 1) {
+                println("Cannot remove last row."); level
+              }
               else LevelOps.removeRow(level, edge)
             Renderer.printLevel(level)
           }
 
         case "removecol" :: where :: Nil =>
           val edge = where.toLowerCase match {
-            case "left"  => ColEdge.Left
+            case "left" => ColEdge.Left
             case "right" => ColEdge.Right
-            case _       => println("Use: removecol left|right"); null
+            case _ => println("Use: removecol left|right"); null
           }
           if (edge != null) {
             level =
-              if (level.cols <= 1) { println("Cannot remove last column."); level }
+              if (level.cols <= 1) {
+                println("Cannot remove last column."); level
+              }
               else LevelOps.removeCol(level, edge)
             Renderer.printLevel(level)
           }
@@ -84,7 +88,7 @@ object MainLevel {
             case (Some(rr), Some(cc)) =>
               LevelOps.toggleAt(level, rr, cc) match {
                 case Some(l2) => level = l2; Renderer.printLevel(level)
-                case None     => println("Out of bounds.")
+                case None => println("Out of bounds.")
               }
             case _ => println("Use: toggle r c")
           }
@@ -94,7 +98,7 @@ object MainLevel {
             case (Some(a), Some(b), Some(c), Some(d)) =>
               LevelOps.clearRect(level, a, b, c, d) match {
                 case Some(l2) => level = l2; Renderer.printLevel(level)
-                case None     => println("Rectangle outside level; no-op.")
+                case None => println("Rectangle outside level; no-op.")
               }
             case _ => println("Use: clear r1 c1 r2 c2")
           }
