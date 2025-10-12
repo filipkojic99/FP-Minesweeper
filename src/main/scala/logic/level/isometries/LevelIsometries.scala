@@ -1,6 +1,7 @@
 package logic.level.isometries
 
 import logic.level.*
+import logic.level.isometries.transformations.{CentralSymmetry, Reflect, Rotate90, Translate}
 
 object LevelIsometries {
   def rotateCW(
