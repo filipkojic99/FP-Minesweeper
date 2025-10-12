@@ -24,6 +24,7 @@ case class Rotate90(
     case RotationDir.CCW => RotationDir.CW
   })
 
+  /** Map (r,c) → (r',c') according to the selected direction. */
   private def mapRC(r: Int, c: Int): (Int, Int) = {
     val (cr, cc) = center
     dir match {

@@ -23,6 +23,7 @@ final case class Reflect(
   /** Map (r,c) → (r',c') according to the selected axis. */
   private def mapRC(n: Sector, r: Int, c: Int): (Int, Int) = axis match {
     case Axis.Row(r0) => (2 * r0 - r, c)
+    
     case Axis.Col(c0) => (r, 2 * c0 - c)
 
     case Axis.Diagonal(Axis.DiagonalKind.Main) =>

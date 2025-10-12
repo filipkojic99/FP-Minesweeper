@@ -1,5 +1,6 @@
 package logic.level.isometries
 
+import logic.level.{ColEdge, LevelOps, RowEdge}
 import model.Level
 
 trait Iso {
@@ -18,16 +19,16 @@ trait IsoHelpers {
   import model.{CellContent, Level}
   import logic.level.isometries.{BoundaryMode, MergeMode, Sector}
 
-  protected inline def inBounds(lv: Level, r: Int, c: Int): Boolean =
+  protected def inBounds(lv: Level, r: Int, c: Int): Boolean =
     r >= 0 && r < lv.rows && c >= 0 && c < lv.cols
 
-  protected inline def setAt(lv: Level, r: Int, c: Int, v: CellContent): Level = {
+  protected def setAt(lv: Level, r: Int, c: Int, v: CellContent): Level = {
     val row2 = lv.cells(r).updated(c, v)
     val cells2 = lv.cells.updated(r, row2)
     lv.copy(cells = cells2)
   }
 
-  /** 1) Snapshot: extract sector to Vector((mappedRC) -> value). */
+  /** 1) Snapshot: extract sector to Vector((mappedRC) -> original value). */
   protected def snapshot(
                           level: Level,
                           n: Sector
@@ -48,45 +49,36 @@ trait IsoHelpers {
                               ): (Level, Int, Int) = {
     if (boundary != BoundaryMode.Expanding || img.isEmpty) return (level, 0, 0)
 
+    // find min and max row in expandable grid
     val minR = img.map(_._1._1).min
     val maxR = img.map(_._1._1).max
     val minC = img.map(_._1._2).min
     val maxC = img.map(_._1._2).max
 
-    val newTop = math.min(0, minR)
-    val newLeft = math.min(0, minC)
-    val newRows = math.max(level.rows - newTop, maxR - newTop + 1)
-    val newCols = math.max(level.cols - newLeft, maxC - newLeft + 1)
+    // add new rows and cols
+    val addTop = math.max(0, -minR)
+    val addLeft = math.max(0, -minC)
+    val addBottom = math.max(0, maxR - (level.rows - 1))
+    val addRight = math.max(0, maxC - (level.cols - 1))
 
-    if (newRows == level.rows && newCols == level.cols && newTop == 0 && newLeft == 0)
-      (level, 0, 0)
-    else {
-      val blank = Vector.fill(newRows, newCols)(CellContent.Clear)
-      val copied =
-        (0 until level.rows).foldLeft(Level(blank)) { (acc, r) =>
-          (0 until level.cols).foldLeft(acc) { (acc2, c) =>
-            setAt(acc2, r - newTop, c - newLeft, level.cells(r)(c))
-          }
-        }
-      (copied, -newTop, -newLeft)
-    }
+    if (addTop == 0 && addLeft == 0 && addBottom == 0 && addRight == 0)
+      return (level, 0, 0)
+
+    val withTop = (0 until addTop).foldLeft(level)((lv, _) => LevelOps.addRow(lv, RowEdge.Top))
+    val withBottom = (0 until addBottom).foldLeft(withTop)((lv, _) => LevelOps.addRow(lv, RowEdge.Bottom))
+    val withLeft = (0 until addLeft).foldLeft(withBottom)((lv, _) => LevelOps.addCol(lv, ColEdge.Left))
+    val expanded = (0 until addRight).foldLeft(withLeft)((lv, _) => LevelOps.addCol(lv, ColEdge.Right))
+
+    (expanded, addTop, addLeft)
   }
 
   /** 3) Clear: erase the original sector (with offsets). */
   protected def clearSector(base: Level, n: Sector, rOff: Int, cOff: Int): Level = {
-    var acc = base
-    var r = n.r1
-    while (r <= n.r2) {
-      var c = n.c1
-      while (c <= n.c2) {
-        val rr = r + rOff
-        val cc = c + cOff
-        if (inBounds(acc, rr, cc)) acc = setAt(acc, rr, cc, CellContent.Clear)
-        c += 1
-      }
-      r += 1
-    }
-    acc
+    val r1 = n.r1 + rOff
+    val c1 = n.c1 + cOff
+    val r2 = n.r2 + rOff
+    val c2 = n.c2 + cOff
+    LevelOps.clearRect(base, r1, c1, r2, c2).getOrElse(base)
   }
 
   /** 4) Merge: insert the transformed image according to MergeMode. */
