@@ -16,22 +16,22 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Transparent+Expanding: reflect ROW(0) (expand up)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     val iso = reflectRow(
-      sector   = Sector(0, 0, 1, 1),  // sector 2*2
+      sector = Sector(0, 0, 1, 1), // sector 2*2
       rowIndex = 0,
-      merge    = MergeMode.Transparent,
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Expanding
     )
 
     val result = iso(level)
 
     val expected = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear), // new mine (0,0)
+      Vector(CellContent.Mine, CellContent.Clear), // new mine (0,0)
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Clear, CellContent.Clear)  // (2,0) deleted because it is not covered
+      Vector(CellContent.Clear, CellContent.Clear) // (2,0) deleted because it is not covered
     ))
 
     result.rows shouldBe 3
@@ -47,17 +47,17 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
     ))
 
     val iso = reflectCol(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       colIndex = 0,
-      merge    = MergeMode.Transparent,
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Expanding
     )
 
     val result = iso(level)
 
     val expected = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear, CellContent.Clear), // new mine (0,0)
-      Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)  // (0,2) deleted
+      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear), // new mine (0,0)
+      Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear) // (0,2) deleted
     ))
 
     result.rows shouldBe 2
@@ -69,12 +69,12 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Transparent+Expanding: reflect MAIN diagonal (no actual expansion)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     val iso = reflectDiagMain(
-      sector   = Sector(0, 0, 1, 1),
-      merge    = MergeMode.Transparent,
+      sector = Sector(0, 0, 1, 1),
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Expanding
     )
 
@@ -82,7 +82,7 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
     val expected = Level(Vector(
       Vector(CellContent.Clear, CellContent.Mine), // new mine (0,1)
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     result shouldBe expected
@@ -91,20 +91,20 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   // ANTI diagonal reflection
   it should "Transparent+Expanding: reflect ANTI diagonal (no actual expansion)" in {
     val level = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectDiagAnti(
-      sector   = Sector(0, 0, 1, 1),
-      merge    = MergeMode.Transparent,
+      sector = Sector(0, 0, 1, 1),
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Expanding
     )
 
     val result = iso(level)
 
     val expected = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Mine) // new mine (1,1)
     ))
 
@@ -119,20 +119,20 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Opaque+Expanding: reflect ROW(0) (expand up, overwrite)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     val iso = reflectRow(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       rowIndex = 0,
-      merge    = MergeMode.Opaque,
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Expanding
     )
 
     val result = iso(level)
 
     val expected = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear)
     ))
@@ -144,14 +144,14 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
   it should "Opaque+Expanding: reflect ROW(1) (expand down, overwrite)" in {
     val level = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectRow(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       rowIndex = 1,
-      merge    = MergeMode.Opaque,
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Expanding
     )
 
@@ -160,7 +160,7 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
     val expected = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     result.rows shouldBe 3
@@ -175,16 +175,16 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
     ))
 
     val iso = reflectCol(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       colIndex = 0,
-      merge    = MergeMode.Opaque,
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Expanding
     )
 
     val result = iso(level)
 
     val expected = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear, CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
 
@@ -196,13 +196,13 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Opaque+Expanding: reflect COL(1) (expand right, overwrite)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     val iso = reflectCol(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       colIndex = 1,
-      merge    = MergeMode.Opaque,
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Expanding
     )
 
@@ -222,12 +222,12 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Opaque+Expanding: reflect MAIN diagonal (overwrite; no expansion)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     val iso = reflectDiagMain(
-      sector   = Sector(0, 0, 1, 1),
-      merge    = MergeMode.Opaque,
+      sector = Sector(0, 0, 1, 1),
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Expanding
     )
 
@@ -244,13 +244,13 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   // ANTI diagonal
   it should "Opaque+Expanding: reflect ANTI diagonal (overwrite; no expansion)" in {
     val level = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectDiagAnti(
-      sector   = Sector(0, 0, 1, 1),
-      merge    = MergeMode.Opaque,
+      sector = Sector(0, 0, 1, 1),
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Expanding
     )
 
@@ -272,13 +272,13 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Transparent+Clipping: reflect ROW(0) (clip up → nothing added)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     val iso = reflectRow(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       rowIndex = 0,
-      merge    = MergeMode.Transparent,
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Clipping
     )
 
@@ -297,9 +297,9 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
     ))
 
     val iso = reflectCol(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       colIndex = 0,
-      merge    = MergeMode.Transparent,
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Clipping
     )
 
@@ -313,15 +313,15 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
   it should "Transparent+Clipping: reflect ROW(1) on 3x2 with 2x2 sector (in-bounds down)" in {
     val level = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectRow(
-      sector   = Sector(0, 0, 1, 1), // upper 2x2 sector
+      sector = Sector(0, 0, 1, 1), // upper 2x2 sector
       rowIndex = 1,
-      merge    = MergeMode.Transparent,
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Clipping
     )
 
@@ -329,7 +329,7 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
     val expected = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear) // new mine (2,0)
+      Vector(CellContent.Mine, CellContent.Clear) // new mine (2,0)
     ))
     result shouldBe expected
   }
@@ -337,13 +337,13 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Transparent+Clipping: reflect COL(1) on 2x3 with 2x2 sector (in-bounds right)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear, CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectCol(
-      sector   = Sector(0, 0, 1, 1), // left 2x2 window
+      sector = Sector(0, 0, 1, 1), // left 2x2 window
       colIndex = 1,
-      merge    = MergeMode.Transparent,
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Clipping
     )
 
@@ -358,20 +358,20 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Transparent+Clipping: reflect MAIN diagonal in 3x3 using 2x2 sector" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear, CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectDiagMain(
-      sector   = Sector(0, 0, 1, 1),
-      merge    = MergeMode.Transparent,
+      sector = Sector(0, 0, 1, 1),
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Clipping
     )
 
     val result = iso(level)
     val expected = Level(Vector(
-      Vector(CellContent.Clear, CellContent.Mine,  CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear, CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Mine, CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
     result shouldBe expected
@@ -379,21 +379,21 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
   it should "Transparent+Clipping: reflect ANTI diagonal in 3x3 using 2x2 sector" in {
     val level = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear, CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectDiagAnti(
-      sector   = Sector(0, 0, 1, 1),
-      merge    = MergeMode.Transparent,
+      sector = Sector(0, 0, 1, 1),
+      merge = MergeMode.Transparent,
       boundary = BoundaryMode.Clipping
     )
 
     val result = iso(level)
     val expected = Level(Vector(
       Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Clear, CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
     result shouldBe expected
@@ -407,13 +407,13 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Opaque+Clipping: reflect ROW(0) (clip up → overwrite with clears)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
 
     val iso = reflectRow(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       rowIndex = 0,
-      merge    = MergeMode.Opaque,
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Clipping
     )
 
@@ -432,9 +432,9 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
     ))
 
     val iso = reflectCol(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       colIndex = 0,
-      merge    = MergeMode.Opaque,
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Clipping
     )
 
@@ -448,15 +448,15 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
   it should "Opaque+Clipping: reflect ROW(1) on 3x2 with 2x2 sector (in-bounds down)" in {
     val level = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectRow(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       rowIndex = 1,
-      merge    = MergeMode.Opaque,
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Clipping
     )
 
@@ -464,7 +464,7 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
     val expected = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear)
     ))
     result shouldBe expected
   }
@@ -472,13 +472,13 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   it should "Opaque+Clipping: reflect COL(1) on 2x3 with 2x2 sector (in-bounds right)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear, CellContent.Clear)
+      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectCol(
-      sector   = Sector(0, 0, 1, 1),
+      sector = Sector(0, 0, 1, 1),
       colIndex = 1,
-      merge    = MergeMode.Opaque,
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Clipping
     )
 
@@ -492,21 +492,21 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
   it should "Opaque+Clipping: reflect MAIN diagonal in 3x3 using 2x2 sector (overwrite)" in {
     val level = Level(Vector(
-      Vector(CellContent.Clear, CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectDiagMain(
-      sector   = Sector(0, 0, 1, 1),
-      merge    = MergeMode.Opaque,
+      sector = Sector(0, 0, 1, 1),
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Clipping
     )
 
     val result = iso(level)
     val expected = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Mine,  CellContent.Clear, CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
     result shouldBe expected
@@ -514,21 +514,21 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
   it should "Opaque+Clipping: reflect ANTI diagonal in 3x3 using 2x2 sector (overwrite)" in {
     val level = Level(Vector(
-      Vector(CellContent.Clear, CellContent.Mine,  CellContent.Clear),
-      Vector(CellContent.Clear, CellContent.Mine,  CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Mine, CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
 
     val iso = reflectDiagAnti(
-      sector   = Sector(0, 0, 1, 1),
-      merge    = MergeMode.Opaque,
+      sector = Sector(0, 0, 1, 1),
+      merge = MergeMode.Opaque,
       boundary = BoundaryMode.Clipping
     )
 
     val result = iso(level)
     val expected = Level(Vector(
-      Vector(CellContent.Mine,  CellContent.Mine, CellContent.Clear),
-      Vector(CellContent.Clear, CellContent.Clear,  CellContent.Clear),
+      Vector(CellContent.Mine, CellContent.Mine, CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
     result shouldBe expected

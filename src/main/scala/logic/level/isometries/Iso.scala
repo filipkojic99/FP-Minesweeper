@@ -83,12 +83,12 @@ trait IsoHelpers {
 
   /** Clear: sector minus image */
   protected def clearOutsideImage(
-                                 lv: Level,
-                                 n: Sector,
-                                 rOff: Int,
-                                 cOff: Int,
-                                 img: Vector[((Int, Int), CellContent)]
-                               ): Level = {
+                                   lv: Level,
+                                   n: Sector,
+                                   rOff: Int,
+                                   cOff: Int,
+                                   img: Vector[((Int, Int), CellContent)]
+                                 ): Level = {
     val covered = img.iterator.map { case ((r, c), _) => (r + rOff, c + cOff) }.toSet
     val r1 = n.r1 + rOff;
     val c1 = n.c1 + cOff
