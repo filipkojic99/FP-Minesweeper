@@ -14,8 +14,8 @@ final case class Reflect(
     val n = sector.normalized
     val img = snapshot(level, n)((r, c) => mapRC(n, r, c))
     val (base, rOff, cOff) = expandIfNeeded(level, img, boundary)
-    val cleared = clearSector(base, n, rOff, cOff)
-    mergeImage(cleared, img, rOff, cOff, merge)
+    val merged = mergeImage(base, img, rOff, cOff, merge)
+    clearOutsideImage(merged, n, rOff, cOff, img)
   }
 
   def inverse: Iso = this // reflection is self-inverse

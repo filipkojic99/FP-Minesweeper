@@ -81,6 +81,35 @@ trait IsoHelpers {
     LevelOps.clearRect(base, r1, c1, r2, c2).getOrElse(base)
   }
 
+  /** Clear: sector minus image */
+  protected def clearOutsideImage(
+                                 lv: Level,
+                                 n: Sector,
+                                 rOff: Int,
+                                 cOff: Int,
+                                 img: Vector[((Int, Int), CellContent)]
+                               ): Level = {
+    val covered = img.iterator.map { case ((r, c), _) => (r + rOff, c + cOff) }.toSet
+    val r1 = n.r1 + rOff;
+    val c1 = n.c1 + cOff
+    val r2 = n.r2 + rOff;
+    val c2 = n.c2 + cOff
+
+    var out = lv
+    var r = r1
+    while (r <= r2) {
+      var c = c1
+      while (c <= c2) {
+        if (!covered.contains((r, c)) && inBounds(out, r, c)) {
+          out = setAt(out, r, c, model.CellContent.Clear)
+        }
+        c += 1
+      }
+      r += 1
+    }
+    out
+  }
+
   /** 4) Merge: insert the transformed image according to MergeMode. */
   protected def mergeImage(
                             cleared: Level,

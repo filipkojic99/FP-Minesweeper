@@ -19,16 +19,16 @@ object LevelIsometries {
                ): Iso = Rotate90(sector, center, RotationDir.CCW, merge, boundary)
 
   def reflectRow(
-                  sector: Sector, r0: Int,
+                  sector: Sector, rowIndex: Int,
                   merge: MergeMode = MergeMode.Opaque,
                   boundary: BoundaryMode = BoundaryMode.Clipping
-                ): Iso = Reflect(sector, Axis.Row(r0), merge, boundary)
+                ): Iso = Reflect(sector, Axis.Row(rowIndex), merge, boundary)
 
   def reflectCol(
-                  sector: Sector, c0: Int,
+                  sector: Sector, colIndex: Int,
                   merge: MergeMode = MergeMode.Opaque,
                   boundary: BoundaryMode = BoundaryMode.Clipping
-                ): Iso = Reflect(sector, Axis.Col(c0), merge, boundary)
+                ): Iso = Reflect(sector, Axis.Col(colIndex), merge, boundary)
 
   def reflectDiagMain(
                        sector: Sector,
