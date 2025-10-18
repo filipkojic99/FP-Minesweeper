@@ -70,6 +70,17 @@ final class GameScreen(
   timer.setRepeats(true)
   timer.start()
 
+  def shutdown(): Unit = timer.stop()
+
+  override def removeNotify(): Unit = {
+    try timer.stop() finally super.removeNotify()
+  }
+
+  override def addNotify(): Unit = {
+    super.addNotify()
+    if (!timer.isRunning) timer.start()
+  }
+
   /** Updates the text in the status bar (status, clicks, time). */
   private def updateStatusLabel(): Unit = {
     val t = gs.elapsedSeconds()
