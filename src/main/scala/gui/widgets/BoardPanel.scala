@@ -2,7 +2,7 @@ package gui.widgets
 
 import java.awt.{Color, Font, GridLayout, Insets}
 import java.awt.event.{MouseAdapter, MouseEvent}
-import javax.swing.{JButton, JPanel, SwingUtilities, UIManager}
+import javax.swing.{BorderFactory, JButton, JPanel, SwingUtilities, UIManager}
 import model.{CellContent, CellState, GameState}
 
 final class BoardPanel(
@@ -11,7 +11,9 @@ final class BoardPanel(
                       ) extends JPanel {
 
   private var buttons: Vector[Vector[JButton]] = Vector.empty
+
   private var explodedAt: Option[(Int, Int)] = None
+  private var hintAt: Option[(Int, Int)] = None
 
   private val defaultFg: Color = UIManager.getColor("Button.foreground")
   private val defaultBg: Color = UIManager.getColor("Button.background")
@@ -94,6 +96,12 @@ final class BoardPanel(
               }
           }
       }
+
+      if (hintAt.contains((r, c))) {
+        b.setBackground(new Color(255, 235, 59)) // bright yellow
+        b.setOpaque(true)
+      }
+      
     }
 
     revalidate(); repaint()
@@ -103,6 +111,9 @@ final class BoardPanel(
   def setExplodedAt(rc: Option[(Int, Int)]): Unit = {
     explodedAt = rc
   }
+
+  /* Set coordinates of hinted field. */
+  def setHintAt(rc: Option[(Int, Int)]): Unit = { hintAt = rc }
 
   /* Separate color for each number for better visibility. */
   private def numberColor(n: Int): Color = n match {

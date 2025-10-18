@@ -10,8 +10,10 @@ class MainFrame extends JFrame("Minesweeper") {
 
   private val centerHolder = new JPanel(new BorderLayout())
 
+  private var currentGame: Option[GameScreen] = None
+
   setLayout(new BorderLayout())
-  add(new MainMenuScreen(this), BorderLayout.NORTH)  // menu location
+  add(new MainMenuScreen(this), BorderLayout.NORTH) // menu location
   add(centerHolder, BorderLayout.CENTER)
 
   setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE)
@@ -21,11 +23,21 @@ class MainFrame extends JFrame("Minesweeper") {
 
   /** Displays the GameScreen for the current game state. */
   def showGame(gs: GameState, mkGame: () => GameState): Unit =
-    setCenter(new GameScreen(gs, mkGame))
+    val g = new GameScreen(gs, mkGame)
+    currentGame = Some(g)
+    setCenter(g)
 
   /** Clears the center panel (e.g., when returning to menu). */
   def showBlank(): Unit =
     setCenter(new JPanel())
+
+  def requestHint(): Unit =
+    currentGame match {
+      case Some(g) => g.showHint()
+      case None => javax.swing.JOptionPane.showMessageDialog(
+        this, "Please start the game first.", "Hint", javax.swing.JOptionPane.WARNING_MESSAGE
+      )
+    }
 
   /** Replaces the center component with the given panel. */
   private def setCenter(c: JComponent): Unit = {

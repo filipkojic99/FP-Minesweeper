@@ -68,7 +68,7 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
             case Some(fileName) =>
               println(s"[GUI] Resume old game → file=$fileName")
 
-            // later: 
+            // later:
             // val (gs, levelPath) = io.GameIO.load(SavesFs.resolvePath(fileName))
             // val adapter = new CoreGameAdapter(gs, () => gs)
             // frame.showGame(adapter)
@@ -84,9 +84,10 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
     }
   }
 
+  /** Handles the Hint button click. */
+  btnHint.addActionListener(_ => frame.requestHint())
 
   btnMoves.addActionListener(_ => println("Insert moves clicked"))
-  btnHint.addActionListener(_ => println("Hint clicked"))
   btnSave.addActionListener(_ => println("Save clicked"))
   btnCreate.addActionListener(_ => println("Create level clicked"))
   btnScores.addActionListener(_ => println("Best scores clicked"))
