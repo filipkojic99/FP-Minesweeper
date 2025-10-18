@@ -14,9 +14,6 @@ project/project/
 *.iml
 *.iws
 
-# VS Code (ako koristiš)
-.vscode/
-
 # OS-specific
 .DS_Store
 Thumbs.db
