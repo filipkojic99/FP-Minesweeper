@@ -4,7 +4,10 @@ import java.awt.FlowLayout
 import javax.swing.{JButton, JOptionPane, JPanel}
 import gui.MainFrame
 import gui.services.{Dialogs, LevelsFs, SavesFs}
+import io.LevelIO
+import logic.BoardOps
 import logic.level.LevelDifficulty
+import model.{Board, GameState}
 
 class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.LEFT)) {
 
@@ -24,6 +27,7 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
   add(btnCreate)
   add(btnScores)
 
+  /** Handles the Start Game button click - shows dialogs to start or resume. */
   btnStart.addActionListener { _ =>
     Dialogs.chooseStartOrResume(this) match {
       case Some(Dialogs.StartNew) =>
@@ -41,11 +45,8 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
               Dialogs.chooseLevel(this, levels) match {
                 case Some(fileName) =>
                   println(s"[GUI] New game → diff=$diff, level=$fileName")
-
-                // (opciono) odmah pokreni igru:
-                // val gs = mkGame(diff, fileName)
-                // val adapter = new CoreGameAdapter(gs, () => mkGame(diff, fileName))
-                // frame.showGame(adapter)
+                  val gs0 = mkGame(diff, fileName)
+                  frame.showGame(gs0, () => mkGame(diff, fileName))
 
                 case None => println("[GUI] Canceled at chooseLevel")
               }
@@ -67,7 +68,7 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
             case Some(fileName) =>
               println(s"[GUI] Resume old game → file=$fileName")
 
-            // kasnije: 
+            // later: 
             // val (gs, levelPath) = io.GameIO.load(SavesFs.resolvePath(fileName))
             // val adapter = new CoreGameAdapter(gs, () => gs)
             // frame.showGame(adapter)
@@ -89,4 +90,12 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
   btnSave.addActionListener(_ => println("Save clicked"))
   btnCreate.addActionListener(_ => println("Create level clicked"))
   btnScores.addActionListener(_ => println("Best scores clicked"))
+
+  /* Create new game. */
+  private def mkGame(diff: LevelDifficulty, fileName: String): GameState = {
+    val path = LevelsFs.resolvePath(diff, fileName)
+    val chars = LevelIO.readLevel(path)
+    val board: Board = BoardOps.buildFromChars(chars)
+    GameState.newGame(board)
+  }
 }
