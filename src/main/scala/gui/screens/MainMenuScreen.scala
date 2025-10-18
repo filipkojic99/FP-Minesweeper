@@ -45,8 +45,9 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
               Dialogs.chooseLevel(this, levels) match {
                 case Some(fileName) =>
                   println(s"[GUI] New game → diff=$diff, level=$fileName")
+                  val levelPath = LevelsFs.resolvePath(diff, fileName).toString
                   val gs0 = mkGame(diff, fileName)
-                  frame.showGame(gs0, () => mkGame(diff, fileName))
+                  frame.showGame(gs0, () => mkGame(diff, fileName), levelPath)
 
                 case None => println("[GUI] Canceled at chooseLevel")
               }
@@ -68,16 +69,21 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
             case Some(fileName) =>
               println(s"[GUI] Resume old game → file=$fileName")
 
-            // later:
-            // val (gs, levelPath) = io.GameIO.load(SavesFs.resolvePath(fileName))
-            // val adapter = new CoreGameAdapter(gs, () => gs)
-            // frame.showGame(adapter)
+              val savePath = SavesFs.resolvePath(fileName).toString
+              val (gsLoaded, levelPath) = io.GameIO.load(savePath)
+
+              val mkFromLevelPath = () => {
+                val chars = io.LevelIO.readLevel(levelPath)
+                val board = logic.BoardOps.buildFromChars(chars)
+                model.GameState.newGame(board)
+              }
+
+              frame.showGame(gsLoaded, mkFromLevelPath, levelPath)
 
             case None =>
               println("[GUI] Resume old canceled")
           }
         }
-
 
       case None =>
         println("[GUI] Start canceled")
@@ -87,6 +93,7 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
   /** Handles the Hint button click. */
   btnHint.addActionListener(_ => frame.requestHint())
 
+  /** Handle moves insertion. */
   btnMoves.addActionListener { _ =>
     val files = MovesFs.listMoveFiles()
     if (files.isEmpty) {
@@ -102,9 +109,25 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
     }
   }
 
+  /** Handle progress saving. */
+  btnSave.addActionListener { _ =>
+    val name = JOptionPane.showInputDialog(
+      this,
+      "Enter save file name (without extension):",
+      "Save game",
+      JOptionPane.PLAIN_MESSAGE
+    )
 
-  btnSave.addActionListener(_ => println("Save clicked"))
+    if (name != null) {
+      val trimmed = name.trim
+      if (trimmed.nonEmpty) {
+        frame.requestSaveGameWithName(s"$trimmed.txt")
+      }
+    }
+  }
+
   btnCreate.addActionListener(_ => println("Create level clicked"))
+
   btnScores.addActionListener(_ => println("Best scores clicked"))
 
   /* Create new game. */

@@ -22,10 +22,11 @@ class MainFrame extends JFrame("Minesweeper") {
   setVisible(true)
 
   /** Displays the GameScreen for the current game state. */
-  def showGame(gs: GameState, mkGame: () => GameState): Unit =
-    val g = new GameScreen(gs, mkGame)
+  def showGame(gs: GameState, mkGame: () => GameState, levelPath: String): Unit = {
+    val g = new GameScreen(gs, mkGame, levelPath)
     currentGame = Some(g)
     setCenter(g)
+  }
 
   /** Clears the center panel (e.g., when returning to menu). */
   def showBlank(): Unit =
@@ -50,6 +51,17 @@ class MainFrame extends JFrame("Minesweeper") {
           javax.swing.JOptionPane.WARNING_MESSAGE
         )
     }
+
+  /** Save game with level path */
+  def requestSaveGameWithName(fileName: String): Unit =
+    currentGame match {
+      case Some(g) => g.onSaveGame(fileName)
+      case None =>
+        javax.swing.JOptionPane.showMessageDialog(
+          this, "Start the game first.", "Save game",
+          javax.swing.JOptionPane.WARNING_MESSAGE
+        )
+    }   
 
   /** Replaces the center component with the given panel. */
   private def setCenter(c: JComponent): Unit = {

@@ -1,17 +1,18 @@
 package gui.screens
 
-import gui.services.MovesFs
+import gui.services.{MovesFs, SavesFs}
 
 import java.awt.{BorderLayout, Color, FlowLayout}
 import javax.swing.{JButton, JLabel, JOptionPane, JPanel, Timer}
 import gui.widgets.BoardPanel
-import io.MoveIO
-import model.{CellContent, GameState, GameStatus}
+import io.{GameIO, MoveIO}
+import model.{CellContent, CellState, GameState, GameStatus}
 import logic.GameOps
 
 final class GameScreen(
                         private var gs: GameState,
-                        private val mkGame: () => GameState
+                        private val mkGame: () => GameState,
+                        private val levelPath: String
                       ) extends JPanel(new BorderLayout()) {
 
   private val status = new JLabel("")
@@ -24,23 +25,26 @@ final class GameScreen(
   /** Board component that handles user input (left/right clicks). */
   private val board: BoardPanel = new BoardPanel(
     onLeftClick = (r, c) => {
-      if (gs.status == GameStatus.InProgress) {
+      if (gs.status == GameStatus.InProgress && gs.state(r)(c) == CellState.Hidden) {
         board.setHintAt(None)
         val clickedIsMine = (gs.board.grid(r)(c).content == CellContent.Mine)
 
         gs = GameOps.reveal(gs, r, c)
 
         if (clickedIsMine && gs.status == GameStatus.Lost) {
-          board.setExplodedAt(Some((r, c))) // save exploded mine for marking its background
+          board.setExplodedAt(Some((r, c)))
         } else {
-          board.setExplodedAt(None) // no explosion
+          board.setExplodedAt(None)
         }
 
         refresh()
       }
     },
     onRightClick = (r, c) => {
-      if (gs.status == GameStatus.InProgress) {
+      if (
+        gs.status == GameStatus.InProgress &&
+          (gs.state(r)(c) == CellState.Hidden || gs.state(r)(c) == CellState.Flagged)
+      ) {
         board.setHintAt(None)
         gs = GameOps.toggleFlag(gs, r, c)
         refresh()
@@ -103,6 +107,12 @@ final class GameScreen(
   /** Read and apply moves from .txt file . */
   def onMovesFileChosen(fileName: String): Unit = {
     try {
+      if (gs.status != GameStatus.InProgress) {
+        JOptionPane.showMessageDialog(this, "Game is not in progress.", "Insert moves",
+          JOptionPane.WARNING_MESSAGE)
+        return
+      }
+
       val path = MovesFs.resolvePath(fileName).toString
       val moves = MoveIO.readMoves(path) // Vector[(Char, Int, Int)]
 
@@ -110,7 +120,7 @@ final class GameScreen(
         JOptionPane.showMessageDialog(this, s"No moves in $fileName.", "Insert moves", JOptionPane.INFORMATION_MESSAGE)
         return
       }
-      
+
       board.setHintAt(None)
       board.setExplodedAt(None)
 
@@ -125,6 +135,27 @@ final class GameScreen(
       case ex: Throwable =>
         JOptionPane.showMessageDialog(this, s"Failed to load moves: ${ex.getMessage}",
           "Insert moves", JOptionPane.ERROR_MESSAGE)
+    }
+  }
+
+  /** Save game in /saves directory . */
+  def onSaveGame(fileName: String): Unit = {
+    try {
+      val path = SavesFs.resolvePath(fileName).toString
+
+      if (gs.status != GameStatus.InProgress) {
+        JOptionPane.showMessageDialog(this, "Cannot save a finished game.", "Save game",
+          JOptionPane.WARNING_MESSAGE)
+        return
+      }
+
+      GameIO.save(path, gs, levelPath)
+      JOptionPane.showMessageDialog(this, s"Game saved to $path.", "Save game",
+        JOptionPane.INFORMATION_MESSAGE)
+    } catch {
+      case ex: Throwable =>
+        JOptionPane.showMessageDialog(this, s"Failed to save game: ${ex.getMessage}",
+          "Save game", JOptionPane.ERROR_MESSAGE)
     }
   }
 

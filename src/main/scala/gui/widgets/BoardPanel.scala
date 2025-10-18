@@ -34,21 +34,11 @@ final class BoardPanel(
         b.setMargin(new Insets(0, 0, 0, 0))
         b.setFont(numberFont)
 
-        // left click - allow only on hidden fields
-        b.addActionListener(_ => {
-          if (gs.state(r)(c) == CellState.Hidden)
-            onLeftClick(r, c)
-        })
-
-        // right click - allow only on hidden or flagged fields
         b.addMouseListener(new MouseAdapter {
-          override def mousePressed(e: MouseEvent): Unit =
-            if (SwingUtilities.isRightMouseButton(e)) {
-              gs.state(r)(c) match {
-                case CellState.Hidden | CellState.Flagged => onRightClick(r, c)
-                case _ => ()
-              }
-            }
+          override def mousePressed(e: MouseEvent): Unit = {
+            if (SwingUtilities.isLeftMouseButton(e)) onLeftClick(r, c)
+            if (SwingUtilities.isRightMouseButton(e)) onRightClick(r, c)
+          }
         })
 
         add(b); b
@@ -101,7 +91,7 @@ final class BoardPanel(
         b.setBackground(new Color(255, 235, 59)) // bright yellow
         b.setOpaque(true)
       }
-      
+
     }
 
     revalidate(); repaint()
