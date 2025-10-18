@@ -20,7 +20,7 @@ object MainLevel {
         Level(Vector.fill(8, 8)(CellContent.Clear))
       }
 
-    println("Level Playground — type 'help' for commands.")
+    println("Level Playground - type 'help' for commands.")
     Renderer.printLevel(level)
 
     var running = true

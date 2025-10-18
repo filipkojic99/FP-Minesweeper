@@ -139,7 +139,7 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
             val top = items.sortBy(r => (r.score, r.timeSec, r.clicks, r.hints)).take(10) // manji bolji
             val header = s"----- $level -----"
             val lines = top.zipWithIndex.map { case (r, i) =>
-              f"${i + 1}%2d. ${r.name} — score:${r.score}%d  time:${r.timeSec}%d s  clicks:${r.clicks}%d  hints:${r.hints}%d"
+              f"${i + 1}%2d. ${r.name} - score:${r.score}%d  time:${r.timeSec}%d s  clicks:${r.clicks}%d  hints:${r.hints}%d"
             }.mkString("\n")
             s"$header\n$lines"
           }.mkString("\n\n")

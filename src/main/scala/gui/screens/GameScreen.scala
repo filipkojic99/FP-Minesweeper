@@ -202,7 +202,7 @@ final class GameScreen(
 
     javax.swing.JOptionPane.showMessageDialog(
       this,
-      s"Saved: ${row.name} — score:${row.score}  time:${row.timeSec}s  clicks:${row.clicks}  hints:${row.hints}  [${row.levelFile}]",
+      s"Saved: ${row.name} - score:${row.score}  time:${row.timeSec}s  clicks:${row.clicks}  hints:${row.hints}  [${row.levelFile}]",
       "Victory",
       javax.swing.JOptionPane.INFORMATION_MESSAGE
     )

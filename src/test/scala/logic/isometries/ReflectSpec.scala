@@ -12,7 +12,7 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
   behavior of "Transparent + Expanding (Row / Col / Main / Anti)"
   // =========================================================
 
-  // ROW — Expanding UP: r' can become -1 -> addTop
+  // ROW - Expanding UP: r' can become -1 -> addTop
   it should "Transparent+Expanding: reflect ROW(0) (expand up)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear),
@@ -39,7 +39,7 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
     result shouldBe expected
   }
 
-  // COL — Expanding LEFT: c' can become -1 -> addLeft
+  // COL - Expanding LEFT: c' can become -1 -> addLeft
   it should "Transparent+Expanding: reflect COL(0) (expand left)" in {
     val level = Level(Vector(
       Vector(CellContent.Clear, CellContent.Mine),
