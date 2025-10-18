@@ -151,9 +151,77 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
     }
   }
 
+  btnCreate.addActionListener { _ =>
+    val modes = Array[AnyRef]("Basic operations", "Isometries")
+    val modeIdx = JOptionPane.showOptionDialog(
+      this,
+      "Choose editor mode:",
+      "Create level",
+      JOptionPane.DEFAULT_OPTION,
+      JOptionPane.QUESTION_MESSAGE,
+      null,
+      modes,
+      modes.head
+    )
 
-  btnCreate.addActionListener(_ => println("Create level clicked"))
+    if (modeIdx >= 0) {
+      val isIsometries = (modeIdx == 1)
 
+      val diffs = Array[AnyRef](
+        LevelDifficulty.Beginner,
+        LevelDifficulty.Intermediate,
+        LevelDifficulty.Expert
+      )
+      val diffAny = JOptionPane.showInputDialog(
+        this,
+        "Choose difficulty:",
+        "Create level",
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        diffs,
+        diffs.head
+      )
+
+      if (diffAny != null) {
+        val diff = diffAny.asInstanceOf[LevelDifficulty]
+        val files = gui.services.LevelsFs.listLevelFiles(diff)
+
+        if (files.isEmpty) {
+          JOptionPane.showMessageDialog(
+            this,
+            s"No .txt levels found in levels/${diff.toString.toLowerCase}.",
+            "Create level",
+            JOptionPane.WARNING_MESSAGE
+          )
+        } else {
+          val selectionValues: Array[AnyRef] = files.map(_.asInstanceOf[AnyRef]).toArray
+
+          val chosenAny = JOptionPane.showInputDialog(
+            this,
+            "Choose level:",
+            "Create level",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            selectionValues,
+            selectionValues.head
+          )
+
+          if (chosenAny != null) {
+            val chosen = chosenAny.toString
+            val levelPath = gui.services.LevelsFs.resolvePath(diff, chosen)
+
+            val editor = new gui.screens.LevelEditorScreen(
+              isIsometries = isIsometries,
+              levelPath = levelPath,
+              difficulty = diff
+            )
+            frame.asInstanceOf[gui.MainFrame].setCenterPublic(editor)
+          }
+        }
+      }
+    }
+  }
+  
   /* Create new game. */
   private def mkGame(diff: LevelDifficulty, fileName: String): GameState = {
     val path = LevelsFs.resolvePath(diff, fileName)

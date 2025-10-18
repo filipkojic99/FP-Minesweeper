@@ -3,7 +3,7 @@ package gui.widgets
 import java.awt.{Color, Font, GridLayout, Insets}
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.{BorderFactory, JButton, JPanel, SwingUtilities, UIManager}
-import model.{CellContent, CellState, GameState}
+import model.{CellContent, CellState, GameState, Level}
 
 final class BoardPanel(
                         onLeftClick: (Int, Int) => Unit,
@@ -116,5 +116,78 @@ final class BoardPanel(
     case 7 => Color.black
     case 8 => Color.gray
     case _ => defaultFg
+  }
+
+  /** Editor level renderer. */
+  def renderLevel(level: Level, showNumbers: Boolean = false): Unit = {
+    val rows = level.rows
+    val cols = level.cols
+
+    if (buttons.isEmpty || buttons.length != rows || buttons.head.length != cols) {
+      removeAll()
+      setLayout(new java.awt.GridLayout(rows, cols, 2, 2))
+      buttons = Vector.tabulate(rows, cols) { (r, c) =>
+        val b = new javax.swing.JButton()
+        b.setFocusPainted(false)
+        b.setMargin(new java.awt.Insets(0, 0, 0, 0))
+        b.setFont(numberFont)
+        b.addMouseListener(new MouseAdapter {
+          override def mousePressed(e: MouseEvent): Unit = {
+            if (SwingUtilities.isLeftMouseButton(e)) onLeftClick(r, c)
+            if (SwingUtilities.isRightMouseButton(e)) onRightClick(r, c)
+          }
+        })
+        add(b);
+        b
+      }
+      revalidate()
+    }
+
+    for (r <- 0 until rows; c <- 0 until cols) {
+      val b = buttons(r)(c)
+
+      // reset styles
+      b.setForeground(defaultFg)
+      b.setBackground(defaultBg)
+      b.setOpaque(true)
+      b.setEnabled(true)
+
+      level.cells(r)(c) match {
+        case CellContent.Mine =>
+          b.setBackground(revealedBg)
+          b.setText("💣")
+          b.setForeground(new Color(178, 0, 0))
+
+        case CellContent.Clear =>
+          b.setBackground(revealedBg)
+          if (showNumbers) {
+            val n = adjMines(level, r, c)
+            if (n > 0) {
+              b.setText(n.toString); b.setForeground(numberColor(n))
+            }
+            else b.setText("")
+          } else {
+            b.setText("")
+          }
+      }
+    }
+
+    repaint()
+  }
+
+  /** (8-neighborhood) level. */
+  private def adjMines(level: Level, r: Int, c: Int): Int = {
+    var cnt = 0
+    var rr = r - 1
+    while (rr <= r + 1) {
+      var cc = c - 1
+      while (cc <= c + 1) {
+        val inBounds = rr >= 0 && rr < level.rows && cc >= 0 && cc < level.cols
+        if (inBounds && !(rr == r && cc == c) && level.cells(rr)(cc) == CellContent.Mine) cnt += 1
+        cc += 1
+      }
+      rr += 1
+    }
+    cnt
   }
 }

@@ -61,7 +61,16 @@ class MainFrame extends JFrame("Minesweeper") {
           this, "Start the game first.", "Save game",
           javax.swing.JOptionPane.WARNING_MESSAGE
         )
-    }   
+    }
+
+  def setCenterPublic(c: JComponent): Unit = {
+    currentGame.foreach(_.shutdown())
+    currentGame = None
+    centerHolder.removeAll()
+    centerHolder.add(c, BorderLayout.CENTER)
+    centerHolder.revalidate()
+    centerHolder.repaint()
+  }
 
   /** Replaces the center component with the given panel. */
   private def setCenter(c: JComponent): Unit = {
