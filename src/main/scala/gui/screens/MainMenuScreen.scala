@@ -3,7 +3,7 @@ package gui.screens
 import java.awt.FlowLayout
 import javax.swing.{JButton, JOptionPane, JPanel}
 import gui.MainFrame
-import gui.services.{Dialogs, LevelsFs}
+import gui.services.{Dialogs, LevelsFs, SavesFs}
 import logic.level.LevelDifficulty
 
 class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.LEFT)) {
@@ -54,8 +54,29 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
         }
 
       case Some(Dialogs.ResumeOld) =>
-        println("[GUI] Resume old game chosen")
-      // ovde ćemo kasnije povezati GameIO.load(...)
+        val saves = SavesFs.listSavedGames()
+        if (saves.isEmpty) {
+          javax.swing.JOptionPane.showMessageDialog(
+            this,
+            "No saved games found in /saves folder.",
+            "Resume game",
+            javax.swing.JOptionPane.WARNING_MESSAGE
+          )
+        } else {
+          Dialogs.chooseLevel(this, saves) match {
+            case Some(fileName) =>
+              println(s"[GUI] Resume old game → file=$fileName")
+
+            // kasnije: 
+            // val (gs, levelPath) = io.GameIO.load(SavesFs.resolvePath(fileName))
+            // val adapter = new CoreGameAdapter(gs, () => gs)
+            // frame.showGame(adapter)
+
+            case None =>
+              println("[GUI] Resume old canceled")
+          }
+        }
+
 
       case None =>
         println("[GUI] Start canceled")
