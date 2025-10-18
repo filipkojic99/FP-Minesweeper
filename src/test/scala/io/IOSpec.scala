@@ -15,7 +15,7 @@ class IOSpec extends AnyFlatSpec with Matchers {
     level.foreach(_.length shouldBe 5)
 
     level(0) shouldBe Vector('-', '-', '-', '#', '-')
-    level(1) shouldBe Vector('-', '-', '#', '#', '-')
+    level(1) shouldBe Vector('-', '-', '#', '-', '-')
     level(2) shouldBe Vector('-', '-', '-', '-', '-')
   }
 

@@ -1,0 +1,8 @@
+LEVEL=src/test/resources/testIO.txt
+STATUS=InProgress
+CLICKS=4
+STARTED=1760782190169
+ELAPSED=17
+HINTS=2
+HF
+RH
