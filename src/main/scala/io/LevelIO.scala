@@ -1,7 +1,7 @@
 package io
 
-import model.{Level, CellContent}
-import logic.level.LevelDifficulty
+import model.{CellContent, Level}
+import logic.level.{LevelDifficulty, LevelValidate}
 
 import java.io.{File, PrintWriter}
 import java.time.LocalDateTime
@@ -17,6 +17,19 @@ object LevelIO {
       src.getLines().toVector.map(_.toVector)
     } finally {
       src.close()
+    }
+  }
+
+  /** Pokuša da detektuje difficulty iz sadržaja nivoa i snimi u odgovarajući folder.
+   * Vrati Right(path) ako je OK; Left(errorMsg) ako level nije validan (npr. van opsega).
+   */
+  def saveLevelAuto(level: Level): Either[String, String] = {
+    LevelValidate.validate(level) match {
+      case Right(info) =>
+        Right(saveLevel(level, info.difficulty)) // koristi postojeći saveLevel
+      case Left(errs) =>
+        val msg = "Level is not valid:\n" + errs.map(_.toString).mkString("• ", "\n• ", "")
+        Left(msg)
     }
   }
 

@@ -58,8 +58,12 @@ final class LevelEditorScreen(
   })
 
   btnSave.addActionListener(_ => {
-    val path = io.LevelIO.saveLevel(level, difficulty)
-    JOptionPane.showMessageDialog(this, s"Saved to: $path", "Save level", JOptionPane.INFORMATION_MESSAGE)
+    io.LevelIO.saveLevelAuto(level) match {
+      case Right(path) =>
+        JOptionPane.showMessageDialog(this, s"Saved to: $path", "Save level", JOptionPane.INFORMATION_MESSAGE)
+      case Left(err) =>
+        JOptionPane.showMessageDialog(this, err, "Save level - invalid level", JOptionPane.WARNING_MESSAGE)
+    }
   })
 
   btnClose.addActionListener(_ => {
