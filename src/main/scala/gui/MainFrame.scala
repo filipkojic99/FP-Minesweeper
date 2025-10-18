@@ -31,12 +31,24 @@ class MainFrame extends JFrame("Minesweeper") {
   def showBlank(): Unit =
     setCenter(new JPanel())
 
+  /** Show hint. */
   def requestHint(): Unit =
     currentGame match {
       case Some(g) => g.showHint()
       case None => javax.swing.JOptionPane.showMessageDialog(
         this, "Please start the game first.", "Hint", javax.swing.JOptionPane.WARNING_MESSAGE
       )
+    }
+
+  /** Apply moves from .txt file. */
+  def requestInsertMoves(fileName: String): Unit =
+    currentGame match {
+      case Some(g) => g.onMovesFileChosen(fileName)
+      case None =>
+        javax.swing.JOptionPane.showMessageDialog(
+          this, "Start the game first.", "Insert moves",
+          javax.swing.JOptionPane.WARNING_MESSAGE
+        )
     }
 
   /** Replaces the center component with the given panel. */

@@ -1,8 +1,11 @@
 package gui.screens
 
+import gui.services.MovesFs
+
 import java.awt.{BorderLayout, Color, FlowLayout}
 import javax.swing.{JButton, JLabel, JOptionPane, JPanel, Timer}
 import gui.widgets.BoardPanel
+import io.MoveIO
 import model.{CellContent, GameState, GameStatus}
 import logic.GameOps
 
@@ -73,6 +76,7 @@ final class GameScreen(
     board.render(gs)
   }
 
+  /** Compute and display hint . */
   def showHint(): Unit = {
     if (gs.status != GameStatus.InProgress) {
       JOptionPane.showMessageDialog(this, "Game is not in progress.", "Hint", JOptionPane.INFORMATION_MESSAGE)
@@ -93,6 +97,34 @@ final class GameScreen(
 
       case None =>
         JOptionPane.showMessageDialog(this, "No clear hint.", "Hint", JOptionPane.INFORMATION_MESSAGE)
+    }
+  }
+
+  /** Read and apply moves from .txt file . */
+  def onMovesFileChosen(fileName: String): Unit = {
+    try {
+      val path = MovesFs.resolvePath(fileName).toString
+      val moves = MoveIO.readMoves(path) // Vector[(Char, Int, Int)]
+
+      if (moves.isEmpty) {
+        JOptionPane.showMessageDialog(this, s"No moves in $fileName.", "Insert moves", JOptionPane.INFORMATION_MESSAGE)
+        return
+      }
+      
+      board.setHintAt(None)
+      board.setExplodedAt(None)
+
+      // apply read moves
+      gs = moves.foldLeft(gs) { (acc, m) => GameOps.applyMove(acc, m) }
+
+      JOptionPane.showMessageDialog(this, s"Applied ${moves.size} moves from $fileName.", "Insert moves",
+        JOptionPane.INFORMATION_MESSAGE)
+
+      refresh()
+    } catch {
+      case ex: Throwable =>
+        JOptionPane.showMessageDialog(this, s"Failed to load moves: ${ex.getMessage}",
+          "Insert moves", JOptionPane.ERROR_MESSAGE)
     }
   }
 

@@ -3,7 +3,7 @@ package gui.screens
 import java.awt.FlowLayout
 import javax.swing.{JButton, JOptionPane, JPanel}
 import gui.MainFrame
-import gui.services.{Dialogs, LevelsFs, SavesFs}
+import gui.services.{Dialogs, LevelsFs, MovesFs, SavesFs}
 import io.LevelIO
 import logic.BoardOps
 import logic.level.LevelDifficulty
@@ -87,7 +87,22 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
   /** Handles the Hint button click. */
   btnHint.addActionListener(_ => frame.requestHint())
 
-  btnMoves.addActionListener(_ => println("Insert moves clicked"))
+  btnMoves.addActionListener { _ =>
+    val files = MovesFs.listMoveFiles()
+    if (files.isEmpty) {
+      javax.swing.JOptionPane.showMessageDialog(
+        this, "No .txt files found in /moves.", "Insert moves",
+        javax.swing.JOptionPane.WARNING_MESSAGE
+      )
+    } else {
+      Dialogs.chooseLevel(this, files) match {
+        case Some(fileName) => frame.requestInsertMoves(fileName)
+        case None           => println("[GUI] Insert moves canceled")
+      }
+    }
+  }
+
+
   btnSave.addActionListener(_ => println("Save clicked"))
   btnCreate.addActionListener(_ => println("Create level clicked"))
   btnScores.addActionListener(_ => println("Best scores clicked"))
