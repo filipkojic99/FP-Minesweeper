@@ -126,9 +126,33 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
     }
   }
 
-  btnCreate.addActionListener(_ => println("Create level clicked"))
+  btnScores.addActionListener { _ =>
+    Dialogs.chooseDifficulty(this) match {
+      case Some(diff) =>
+        val diffStr = diff.toString.toLowerCase
+        val all = io.ScoreIO.readAll(diffStr)
 
-  btnScores.addActionListener(_ => println("Best scores clicked"))
+        val grouped = all.groupBy(_.levelFile).toSeq.sortBy(_._1) // po imenu levela
+        val text =
+          if (all.isEmpty) "No scores yet."
+          else grouped.map { case (level, items) =>
+            val top = items.sortBy(r => (r.score, r.timeSec, r.clicks, r.hints)).take(10) // manji bolji
+            val header = s"----- $level -----"
+            val lines = top.zipWithIndex.map { case (r, i) =>
+              f"${i + 1}%2d. ${r.name} — score:${r.score}%d  time:${r.timeSec}%d s  clicks:${r.clicks}%d  hints:${r.hints}%d"
+            }.mkString("\n")
+            s"$header\n$lines"
+          }.mkString("\n\n")
+
+        javax.swing.JOptionPane.showMessageDialog(
+          this, text, s"Best scores – ${diff.toString}", javax.swing.JOptionPane.INFORMATION_MESSAGE
+        )
+      case None => ()
+    }
+  }
+
+
+  btnCreate.addActionListener(_ => println("Create level clicked"))
 
   /* Create new game. */
   private def mkGame(diff: LevelDifficulty, fileName: String): GameState = {

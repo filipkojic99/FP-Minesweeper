@@ -1,0 +1,8 @@
+Filip;70;42;18;1;level1.txt
+Ana;83;58;25;0;level1.txt
+Milan;66;46;20;0;level2.txt
+Jovan;107;60;27;2;level2.txt
+Sara;55;39;16;0;level3.txt
+Fica;7;2;5;0;level1.txt
+asdf;9;2;7;0;level1.txt
+asdfadasda;9;3;6;0;level1.txt

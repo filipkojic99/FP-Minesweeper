@@ -5,7 +5,7 @@ import gui.services.{MovesFs, SavesFs}
 import java.awt.{BorderLayout, Color, FlowLayout}
 import javax.swing.{JButton, JLabel, JOptionPane, JPanel, Timer}
 import gui.widgets.BoardPanel
-import io.{GameIO, MoveIO}
+import io.{GameIO, MoveIO, ScoreIO, ScoreRow}
 import model.{CellContent, CellState, GameState, GameStatus}
 import logic.GameOps
 
@@ -29,6 +29,7 @@ final class GameScreen(
         board.setHintAt(None)
         val clickedIsMine = (gs.board.grid(r)(c).content == CellContent.Mine)
 
+        val prev = gs.status
         gs = GameOps.reveal(gs, r, c)
 
         if (clickedIsMine && gs.status == GameStatus.Lost) {
@@ -38,6 +39,7 @@ final class GameScreen(
         }
 
         refresh()
+        if (prev != GameStatus.Won && gs.status == GameStatus.Won) onWinSaveScore()
       }
     },
     onRightClick = (r, c) => {
@@ -157,6 +159,42 @@ final class GameScreen(
         JOptionPane.showMessageDialog(this, s"Failed to save game: ${ex.getMessage}",
           "Save game", JOptionPane.ERROR_MESSAGE)
     }
+  }
+
+  private def difficultyFromLevelPath(path: String): String = {
+    val s = path.toLowerCase
+    if (s.contains("beginner")) "beginner"
+    else if (s.contains("intermediate")) "intermediate"
+    else if (s.contains("expert")) "expert"
+    else "unknown"
+  }
+
+  private def baseName(path: String): String = new java.io.File(path).getName
+
+  private def onWinSaveScore(): Unit = {
+    val name = javax.swing.JOptionPane.showInputDialog(
+      this, "You won! Enter your name for the leaderboard:", "Victory",
+      javax.swing.JOptionPane.PLAIN_MESSAGE
+    )
+    if (name == null || name.trim.isEmpty) return
+
+    val diff = difficultyFromLevelPath(levelPath)
+    val row = ScoreRow(
+      name = name.trim,
+      score = gs.score.getOrElse(0), // manji = bolji
+      timeSec = gs.elapsedSeconds(),
+      clicks = gs.clicks,
+      hints = gs.hintsUsed,
+      levelFile = baseName(levelPath)
+    )
+    io.ScoreIO.append(diff, row)
+
+    javax.swing.JOptionPane.showMessageDialog(
+      this,
+      s"Saved: ${row.name} — score:${row.score}  time:${row.timeSec}s  clicks:${row.clicks}  hints:${row.hints}  [${row.levelFile}]",
+      "Victory",
+      javax.swing.JOptionPane.INFORMATION_MESSAGE
+    )
   }
 
   /** Initializes the screen content. */
