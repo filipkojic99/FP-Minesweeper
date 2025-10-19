@@ -1,9 +1,11 @@
+package cli
+
 import cli.Renderer
+import io.LevelIO
+import logic.level.*
+import model.*
 
 import scala.io.StdIn.readLine
-import io.LevelIO
-import model.*
-import logic.level.*
 
 object MainLevel {
 

@@ -1,6 +1,8 @@
+package cli
+
+import cli.Renderer
 import io.{GameIO, LevelIO, MoveIO}
 import logic.{BoardOps, GameOps}
-import cli.Renderer
 import model.*
 
 import scala.io.StdIn
