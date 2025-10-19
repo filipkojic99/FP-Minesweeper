@@ -21,6 +21,17 @@ case class Sector(r1: Int, c1: Int, r2: Int, c2: Int) {
     val s = normalized
     r >= s.r1 && r <= s.r2 && c >= s.c1 && c <= s.c2
   }
+
+  /** Axis-aligned presek sa drugim sektorom. */
+  def intersect(that: Sector): Option[Sector] = {
+    val a = this.normalized
+    val b = that.normalized
+    val rr1 = math.max(a.r1, b.r1)
+    val cc1 = math.max(a.c1, b.c1)
+    val rr2 = math.min(a.r2, b.r2)
+    val cc2 = math.min(a.c2, b.c2)
+    if (rr1 <= rr2 && cc1 <= cc2) Some(Sector(rr1, cc1, rr2, cc2)) else None
+  }
 }
 
 /** Reflexion axis. */

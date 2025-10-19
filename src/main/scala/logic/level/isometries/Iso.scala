@@ -10,6 +10,9 @@ trait Iso {
   /** Undo applied isometry. */
   def inverse: Iso
 
+  /** Pre-checks: list of errors. */
+  def precheck(level: Level): List[String] = Nil
+
   /** Compose isometries. */
   final def andThen(that: Iso): Iso = Iso.Composite(List(this, that))
 }
@@ -124,6 +127,39 @@ trait IsoHelpers {
       if (!inBounds(acc, rr, cc)) acc
       else setAt(acc, rr, cc, merge.merge(acc.cells(rr)(cc), v))
     }
+
+  protected def mapSector(sector: Sector)(mapRC: (Int, Int) => (Int, Int)): Sector = {
+    val s = sector.normalized
+    val corners = List(
+      (s.r1, s.c1),
+      (s.r1, s.c2),
+      (s.r2, s.c1),
+      (s.r2, s.c2)
+    ).map { case (r, c) => mapRC(r, c) }
+
+    val rs = corners.map(_._1)
+    val cs = corners.map(_._2)
+    Sector(rs.min, cs.min, rs.max, cs.max)
+  }
+
+  protected def mapSectorVisible(level: Level, sector: Sector, boundary: BoundaryMode)
+                                (mapRC: (Int, Int) => (Int, Int)): Option[Sector] = {
+    val sImg = mapSector(sector)(mapRC)
+    boundary match {
+      case BoundaryMode.Expanding => Some(sImg)
+      case BoundaryMode.Clipping =>
+        val board = Sector(0, 0, level.rows - 1, level.cols - 1)
+        sImg.intersect(board)
+    }
+  }
+
+}
+
+object IsoOps {
+  def safeApply(iso: Iso, level: Level): Either[List[String], Level] = {
+    val errs = iso.precheck(level)
+    if (errs.nonEmpty) Left(errs) else Right(iso(level))
+  }
 }
 
 object Iso {
@@ -141,5 +177,8 @@ object Iso {
 
     def inverse: Iso =
       Composite(steps.reverse.map(_.inverse))
+
+    override def precheck(level: Level): List[String] =
+      steps.flatMap(_.precheck(level))
   }
 }

@@ -4,7 +4,7 @@ import java.awt.{BorderLayout, FlowLayout}
 import javax.swing.*
 import gui.widgets.BoardPanel
 import logic.BoardOps
-import logic.level.isometries.{BoundaryMode, Iso, LevelIsometries, MergeMode, Sector}
+import logic.level.isometries.{BoundaryMode, Iso, IsoOps, LevelIsometries, MergeMode, Sector}
 import logic.level.{ColEdge, LevelDifficulty, LevelOps, RowEdge}
 import model.{CellContent, CellState, GameState, Level}
 
@@ -15,6 +15,12 @@ final class LevelEditorScreen(
                              ) extends JPanel(new BorderLayout()) {
 
   private var level: Level = LevelOps.buildLevel(levelPath)
+
+  // čuvamo početni nivo za Reset
+  private val originalLevel: Level = level
+  // poslednja primenjena izometrija (za kvazi-inverz)
+  private var appliedIsos: List[Iso] = Nil
+
 
   // pick mod za biranje klikom po tabli
   private object PickKind extends Enumeration {
@@ -79,6 +85,43 @@ final class LevelEditorScreen(
   private val top = new JPanel(new FlowLayout(FlowLayout.LEFT))
   top.add(new JLabel(s"Editing: $levelPath  |  Mode: " + (if (isIsometries) "Isometries" else "Basic")))
   top.add(btnValidate); top.add(btnSave); top.add(btnClose)
+
+  private val btnReset = new JButton("Reset")
+  private val btnInverse = new JButton("Inverse (quasi)")
+
+  top.add(btnReset)
+  top.add(btnInverse)
+
+  // Reset na originalni nivo
+  btnReset.addActionListener(_ => {
+    level = originalLevel
+    appliedIsos = Nil
+    board.setHintAt(None)
+    pickMode = PickKind.NonePickKind
+    renderFromLevel()
+  })
+
+  // Kvazi-inverz poslednje izometrije (radi nad trenutnim levelom)
+  btnInverse.addActionListener(_ => {
+    appliedIsos match {
+      case iso :: rest =>
+        val inv = iso.inverse
+        IsoOps.safeApply(inv, level) match {
+          case Right(lv2) =>
+            level = lv2
+            appliedIsos = rest // uspešan inverse → skini sa steka
+            board.setHintAt(None)
+            pickMode = PickKind.NonePickKind
+            renderFromLevel()
+          case Left(errs) =>
+            val msg = errs.mkString("• ", "\n• ", "")
+            JOptionPane.showMessageDialog(this, msg, "Inverse error", JOptionPane.WARNING_MESSAGE)
+        }
+      case Nil =>
+        java.awt.Toolkit.getDefaultToolkit.beep()
+    }
+  })
+
 
   // Basic/Isometries UI
   private val rightPanel: JComponent =
@@ -265,23 +308,6 @@ final class LevelEditorScreen(
 
     p
   }
-
-  // samo Undo (stack inverse operacija)
-  private var undoStack: List[Iso] = Nil
-
-  private val btnUndo = new JButton("Undo")
-  top.add(btnUndo)
-  btnUndo.addActionListener(_ => {
-    undoStack match {
-      case inv :: rest =>
-        level = inv(level) // izvrši inverse
-        undoStack = rest
-        board.setHintAt(None)
-        renderFromLevel()
-      case Nil =>
-        java.awt.Toolkit.getDefaultToolkit.beep()
-    }
-  })
 
   private def buildIsometriesPanel(): JComponent = {
     val p = new JPanel(new java.awt.GridLayout(0, 1, 8, 8))
@@ -519,15 +545,20 @@ final class LevelEditorScreen(
     } yield (x1, y1, x2, y2)
 
   private def applyIsoWithUndo(iso: Iso): Unit = {
-    // za Undo sačuvaj inverse
-    undoStack = iso.inverse :: undoStack
-    // primeni izometriju
-    level = iso(level)
-    // očisti markere
-    board.setHintAt(None)
-    pickMode = PickKind.NonePickKind
-    renderFromLevel()
+    IsoOps.safeApply(iso, level) match {
+      case Right(lv2) =>
+        // zapamti primenjeni korak (za chain quasi-inverse)
+        appliedIsos = iso :: appliedIsos
+        level = lv2
+        board.setHintAt(None)
+        pickMode = PickKind.NonePickKind
+        renderFromLevel()
+      case Left(errs) =>
+        val msg = errs.mkString("• ", "\n• ", "")
+        JOptionPane.showMessageDialog(this, msg, "Isometry error", JOptionPane.WARNING_MESSAGE)
+    }
   }
+
 
 
 }
