@@ -129,12 +129,12 @@ object IsometryIO {
           s <- sector(); c0 <- int("c0"); m <- merge(); b <- boundary()
         } yield Reflect(s, Axis.Col(c0), m, b)
 
-      case "REFLECT_DIAG_MAIN" =>
+      case "REFLECT_MAIN" =>
         for {
           s <- sector(); m <- merge(); b <- boundary()
         } yield Reflect(s, Axis.Diagonal(Axis.DiagonalKind.Main), m, b)
 
-      case "REFLECT_DIAG_ANTI" =>
+      case "REFLECT_ANTI" =>
         for {
           s <- sector(); m <- merge(); b <- boundary()
         } yield Reflect(s, Axis.Diagonal(Axis.DiagonalKind.Anti), m, b)
@@ -173,9 +173,29 @@ object IsometryIO {
     p.toString
   }.toEither.left.map(_.getMessage)
 
+  def listNamesNoExt(): Seq[String] =
+    listFiles().map(_.stripSuffix(".txt"))
+
+  /** Pročitaj SIROVE linije koraka iz fajla (preskače prazne i #). */
+  def readLines(nameNoExt: String): Either[String, Seq[String]] = {
+    val p = dir.resolve(s"${sanitize(nameNoExt)}.txt").toFile
+    if (!p.exists()) Left(s"File not found: ${p.getAbsolutePath}")
+    else {
+      val src = Source.fromFile(p, "UTF-8")
+      try {
+        val xs = src.getLines().toVector
+          .map(_.trim)
+          .filter(l => l.nonEmpty && !l.startsWith("#"))
+        Right(xs)
+      } catch {
+        case t: Throwable => Left(t.getMessage)
+      } finally src.close()
+    }
+  }
+
   private def ensureDir(): Unit =
     if (!Files.exists(dir)) Files.createDirectories(dir)
 
   private def sanitize(name: String): String =
-    name.replaceAll("[^a-zA-Z0-9_\\-\\.]", "_")  
+    name.replaceAll("[^a-zA-Z0-9_\\-\\.]", "_")
 }

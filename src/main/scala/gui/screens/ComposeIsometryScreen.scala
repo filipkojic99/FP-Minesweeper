@@ -40,6 +40,18 @@ final class ComposeIsometryScreen(onSaved: () => Unit = () => ()) extends JPanel
     "CENTRAL"
   ))
 
+  private val cbSaved = new JComboBox[String]()
+  private val btnReload = new JButton("Reload")
+  private val btnInsertAll = new JButton("Insert steps")
+
+  private def refreshSavedList(): Unit = {
+    val names = IsometryIO.listNamesNoExt()
+    cbSaved.removeAllItems()
+    names.foreach(cbSaved.addItem)
+    if (names.nonEmpty) cbSaved.setSelectedIndex(0)
+  }
+
+
   // sector
   private val tfR1 = new JTextField("0", 4)
   private val tfC1 = new JTextField("0", 4)
@@ -220,6 +232,12 @@ final class ComposeIsometryScreen(onSaved: () => Unit = () => ()) extends JPanel
     topRow.add(new JLabel("Operation:"))
     topRow.add(cbKind)
 
+    val savedRow = new JPanel(new FlowLayout(FlowLayout.LEFT))
+    savedRow.add(new JLabel("Saved composition:"))
+    savedRow.add(cbSaved)
+    savedRow.add(btnReload)
+    savedRow.add(btnInsertAll)
+
     val sectorRow = new JPanel(new FlowLayout(FlowLayout.LEFT))
     sectorRow.add(new JLabel("Sector r1,c1 — r2,c2:"))
     sectorRow.add(tfR1); sectorRow.add(tfC1)
@@ -230,6 +248,8 @@ final class ComposeIsometryScreen(onSaved: () => Unit = () => ()) extends JPanel
     modesRow.add(new JLabel("Merge:")); modesRow.add(rbOpaque); modesRow.add(rbTransp)
     modesRow.add(Box.createHorizontalStrut(10))
     modesRow.add(new JLabel("Boundary:")); modesRow.add(rbClip); modesRow.add(rbExp)
+
+    rightForm.add(savedRow)
 
     val actionsRow = new JPanel(new FlowLayout(FlowLayout.LEFT))
     actionsRow.add(btnAddStep)
@@ -325,6 +345,32 @@ final class ComposeIsometryScreen(onSaved: () => Unit = () => ()) extends JPanel
       }
     }
   })
+
+  // init: popuni combobox
+  refreshSavedList()
+
+  btnReload.addActionListener(_ => refreshSavedList())
+
+  btnInsertAll.addActionListener(_ => {
+    val sel = Option(cbSaved.getSelectedItem).map(_.toString).filter(_.nonEmpty)
+    sel match {
+      case None =>
+        JOptionPane.showMessageDialog(this, "No saved composition selected.", "Insert", JOptionPane.WARNING_MESSAGE)
+      case Some(nameNoExt) =>
+        IsometryIO.readLines(nameNoExt) match {
+          case Left(err) =>
+            JOptionPane.showMessageDialog(this, err, "Insert error", JOptionPane.WARNING_MESSAGE)
+          case Right(lines) =>
+            if (lines.isEmpty) {
+              JOptionPane.showMessageDialog(this, "Selected file has no steps.", "Insert", JOptionPane.INFORMATION_MESSAGE)
+            } else {
+              lines.foreach(stepsModel.addElement)
+              stepsList.setSelectedIndex(stepsModel.size() - 1)
+            }
+        }
+    }
+  })
+
 
 
   // initial card
