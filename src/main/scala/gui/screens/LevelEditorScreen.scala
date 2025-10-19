@@ -119,6 +119,12 @@ final class LevelEditorScreen(
         }
       case Nil =>
         java.awt.Toolkit.getDefaultToolkit.beep()
+        JOptionPane.showMessageDialog(
+          this,
+          "No applied isometries to invert.",
+          "Inverse",
+          JOptionPane.INFORMATION_MESSAGE
+        )
     }
   })
 
