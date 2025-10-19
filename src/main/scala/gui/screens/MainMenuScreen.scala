@@ -18,6 +18,7 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
   private val btnHint   = new JButton("Hint")
   private val btnSave   = new JButton("Save game")
   private val btnCreate = new JButton("Create level")
+  private val btnIso = new JButton("Compose isometry")
   private val btnScores = new JButton("Best scores")
 
   add(btnStart)
@@ -25,6 +26,7 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
   add(btnHint)
   add(btnSave)
   add(btnCreate)
+  add(btnIso)
   add(btnScores)
 
   /** Handles the Start Game button click - shows dialogs to start or resume. */
@@ -221,6 +223,9 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
       }
     }
   }
+
+
+  btnIso.addActionListener(_ => frame.showCompose())
   
   /* Create new game. */
   private def mkGame(diff: LevelDifficulty, fileName: String): GameState = {

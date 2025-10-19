@@ -72,6 +72,17 @@ class MainFrame extends JFrame("Minesweeper") {
     centerHolder.repaint()
   }
 
+  // u MainFrame (primer)
+  def showCompose(): Unit = {
+    val screen = new gui.screens.ComposeIsometryScreen(() => {
+      // npr. kada snimiš nešto, možeš osvežiti editor panel ako je otvoren
+    })
+    setCenter(screen) // ili card layout / tab
+    revalidate();
+    repaint()
+  }
+
+
   /** Replaces the center component with the given panel. */
   private def setCenter(c: JComponent): Unit = {
     centerHolder.removeAll()

@@ -1,0 +1,4 @@
+# name: SpiralCW
+ROTATE90;r1=0;c1=0;r2=4;c2=4;cr=2;cc=2;dir=CW;merge=Opaque;boundary=Clipping
+REFLECT_COL;r1=0;c1=0;r2=4;c2=4;c0=2;merge=Opaque;boundary=Clipping
+TRANSLATE;r1=0;c1=0;r2=4;c2=4;dy=1;dx=-2;merge=Opaque;boundary=Expanding
