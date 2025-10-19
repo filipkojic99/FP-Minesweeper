@@ -40,7 +40,7 @@ object Dialogs {
     val res = JOptionPane.showOptionDialog(
       parent,
       "Choose difficulty:",
-      "New game",
+      "Choose difficulty:",
       JOptionPane.DEFAULT_OPTION,
       JOptionPane.QUESTION_MESSAGE,
       icon,

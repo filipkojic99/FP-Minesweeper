@@ -392,9 +392,9 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
     val result = iso(level)
     val expected = Level(Vector(
-      Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
-      Vector(CellContent.Clear, CellContent.Mine, CellContent.Clear),
-      Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
+      Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Clear, CellContent.Mine)
     ))
     result shouldBe expected
   }
@@ -527,8 +527,8 @@ class ReflectSpec extends AnyFlatSpec with Matchers {
 
     val result = iso(level)
     val expected = Level(Vector(
-      Vector(CellContent.Mine, CellContent.Mine, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
+      Vector(CellContent.Clear, CellContent.Mine, CellContent.Mine),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear)
     ))
     result shouldBe expected
