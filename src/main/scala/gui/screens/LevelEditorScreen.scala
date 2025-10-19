@@ -428,6 +428,7 @@ final class LevelEditorScreen(
     ops4.add(Box.createHorizontalStrut(6));
     ops4.add(btnCentral)
     p.add(ops4)
+    p.add(buildCustomIsosPanel())
 
     // --- Helper za čitanje parametara ---
     def readParams(): Boolean = {
@@ -565,6 +566,45 @@ final class LevelEditorScreen(
     }
   }
 
+  private def buildCustomIsosPanel(): JComponent = {
+    val p = new JPanel(new FlowLayout(FlowLayout.LEFT))
+    p.setBorder(BorderFactory.createTitledBorder("Custom isometries"))
+
+    val files = io.IsometryIO.listFiles()
+    if (files.isEmpty) {
+      p.add(new JLabel("No files in /isometries"))
+    } else {
+      files.foreach { fname =>
+        io.IsometryIO.load(fname) match {
+          case Right(iso) =>
+            val btn = new JButton(fname.stripSuffix(".txt"))
+            btn.setToolTipText(s"Apply '${fname}'")
+            btn.addActionListener(_ => applyIsoWithUndo(iso))
+            p.add(btn)
+          case Left(err) =>
+            val btn = new JButton(fname.stripSuffix(".txt"))
+            btn.setEnabled(false)
+            btn.setToolTipText(s"Invalid: $err")
+            p.add(btn)
+        }
+      }
+    }
+
+    // opcionalno: refresh dugme
+    val btnReload = new JButton("Reload")
+    btnReload.addActionListener(_ => {
+      // rekonstruiši panel naivno:
+      val parent = p.getParent
+      val idx = parent.asInstanceOf[JComponent].getComponentZOrder(p)
+      parent.remove(p)
+      parent.add(buildCustomIsosPanel(), idx)
+      parent.revalidate()
+      parent.repaint()
+    })
+    p.add(btnReload)
+
+    p
+  }
 
 
 }

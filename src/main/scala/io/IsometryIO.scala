@@ -1,37 +1,159 @@
 package io
 
-import java.nio.file.{Files, Paths, StandardOpenOption}
-import scala.jdk.CollectionConverters._
-import scala.util.Try
+import io.IsometryIO.{NamePrefix, ensureDir, pathFor}
 
-import logic.level.isometries._
-import logic.level.isometries.transformations._
+import java.io.File
+import java.nio.file.{Files, Paths, StandardOpenOption}
+import scala.io.Source
+import scala.util.Try
+import logic.level.isometries.*
+import logic.level.isometries.transformations.*
 import model.Level
 
 object IsometryIO {
-
-  private val Dir = Paths.get("isometries")
+  private val dir = Paths.get("isometries")
   private val NamePrefix = "# name:"
 
-  private def ensureDir(): Unit =
-    if (!Files.exists(Dir)) Files.createDirectories(Dir)
-
-  /** Listing svih .txt fajlova iz isometries/ (npr. ["SpiralCW.txt", ...]) */
-  def list(): Seq[String] = {
-    ensureDir()
-    Files.list(Dir).iterator().asScala
-      .filter(Files.isRegularFile(_))
-      .map(_.getFileName.toString)
-      .filter(_.toLowerCase.endsWith(".txt"))
-      .toSeq
-      .sorted
-  }
 
   /** Puna putanja za zadato "ime" bez ekstenzije. */
   def pathFor(nameNoExt: String): String = {
     ensureDir()
-    Dir.resolve(s"${sanitize(nameNoExt)}.txt").toString
+    dir.resolve(s"${sanitize(nameNoExt)}.txt").toString
   }
+
+  /** Listaj sve .txt fajlove iz /isometries, vrati imena fajlova (sa ekstenzijom). */
+  def listFiles(): Seq[String] = {
+    if (!Files.exists(dir)) Files.createDirectories(dir)
+    val f = dir.toFile
+    Option(f.listFiles()).toSeq.flatten
+      .filter(ff => ff.isFile && ff.getName.toLowerCase.endsWith(".txt"))
+      .map(_.getName)
+      .sorted
+  }
+
+  /** Učitaj kompozit izometrija iz fajla po imenu (npr. "SpiralCW.txt"). */
+  def load(name: String): Either[String, Iso] = {
+    val path = dir.resolve(name).toFile
+    if (!path.exists()) return Left(s"File not found: $path")
+
+    val src = Source.fromFile(path, "UTF-8")
+    try {
+      val lines = src.getLines().toVector
+        .map(_.trim)
+        .filter(l => l.nonEmpty && !l.startsWith("#"))
+
+      val stepsEither: Either[String, List[Iso]] =
+        lines.foldLeft(Right(Nil): Either[String, List[Iso]]) { (accE, line) =>
+          for {
+            acc <- accE
+            iso <- parseLine(line)
+          } yield acc :+ iso
+        }
+
+      stepsEither.map(LevelIsometries.composeAll)
+    } finally src.close()
+  }
+
+  // --------------------------------------------------------------------------
+  // Parsing
+  // Format linije primer:
+  // ROTATE90;r1=0;c1=0;r2=4;c2=4;cr=2;cc=2;dir=CW;merge=Opaque;boundary=Clipping
+  //
+  // REFLECT_ROW;r1=..;c1=..;r2=..;c2=..;r0=..
+  // REFLECT_COL;...;c0=..
+  // REFLECT_DIAG_MAIN;...
+  // REFLECT_DIAG_ANTI;...
+  // TRANSLATE;...;dy=..;dx=..;merge=...;boundary=...
+  // CENTRAL;...;cr=..;cc=..
+  // --------------------------------------------------------------------------
+  private def parseLine(line: String): Either[String, Iso] = {
+    val parts = line.split(";").map(_.trim).toList
+    if (parts.isEmpty) return Left("Empty line")
+
+    val op = parts.head.toUpperCase
+    val kv = parts.tail.flatMap { p =>
+      p.split("=", 2) match {
+        case Array(k, v) => Some(k.trim.toLowerCase -> v.trim)
+        case _           => None
+      }
+    }.toMap
+
+    def int(name: String): Either[String, Int] =
+      kv.get(name).toRight(s"Missing $name").flatMap(s => Try(s.toInt).toOption.toRight(s"Invalid int: $name=$s"))
+
+    def str(name: String): Either[String, String] =
+      kv.get(name).toRight(s"Missing $name")
+
+    def sector(): Either[String, Sector] =
+      for {
+        r1 <- int("r1"); c1 <- int("c1"); r2 <- int("r2"); c2 <- int("c2")
+      } yield Sector(r1, c1, r2, c2)
+
+    def merge(): Either[String, MergeMode] =
+      kv.get("merge").map(_.toLowerCase) match {
+        case Some("opaque")      => Right(MergeMode.Opaque)
+        case Some("transparent") => Right(MergeMode.Transparent)
+        case None                => Right(MergeMode.Opaque) // default
+        case Some(x)             => Left(s"Unknown merge=$x")
+      }
+
+    def boundary(): Either[String, BoundaryMode] =
+      kv.get("boundary").map(_.toLowerCase) match {
+        case Some("clipping")  => Right(BoundaryMode.Clipping)
+        case Some("expanding") => Right(BoundaryMode.Expanding)
+        case None              => Right(BoundaryMode.Clipping) // default
+        case Some(x)           => Left(s"Unknown boundary=$x")
+      }
+
+    op match {
+      case "ROTATE90" =>
+        for {
+          s   <- sector()
+          cr  <- int("cr"); cc <- int("cc")
+          d   <- str("dir").map(_.toUpperCase).flatMap {
+            case "CW"  => Right(RotationDir.CW)
+            case "CCW" => Right(RotationDir.CCW)
+            case x     => Left(s"dir must be CW/CCW, got $x")
+          }
+          m   <- merge()
+          b   <- boundary()
+        } yield Rotate90(s, (cr, cc), d, m, b)
+
+      case "REFLECT_ROW" =>
+        for {
+          s <- sector(); r0 <- int("r0"); m <- merge(); b <- boundary()
+        } yield Reflect(s, Axis.Row(r0), m, b)
+
+      case "REFLECT_COL" =>
+        for {
+          s <- sector(); c0 <- int("c0"); m <- merge(); b <- boundary()
+        } yield Reflect(s, Axis.Col(c0), m, b)
+
+      case "REFLECT_DIAG_MAIN" =>
+        for {
+          s <- sector(); m <- merge(); b <- boundary()
+        } yield Reflect(s, Axis.Diagonal(Axis.DiagonalKind.Main), m, b)
+
+      case "REFLECT_DIAG_ANTI" =>
+        for {
+          s <- sector(); m <- merge(); b <- boundary()
+        } yield Reflect(s, Axis.Diagonal(Axis.DiagonalKind.Anti), m, b)
+
+      case "TRANSLATE" =>
+        for {
+          s <- sector(); dy <- int("dy"); dx <- int("dx"); m <- merge(); b <- boundary()
+        } yield Translate(s, dy, dx, m, b)
+
+      case "CENTRAL" =>
+        for {
+          s <- sector(); cr <- int("cr"); cc <- int("cc"); m <- merge(); b <- boundary()
+        } yield CentralSymmetry(s, (cr, cc), m, b)
+
+      case other =>
+        Left(s"Unknown op: $other")
+    }
+  }
+
 
   /** Snimi kompozitnu izometriju u svoj fajl.
    * `lines` su linije koraka (bez headera); header sa # name: se dodaje automatski.
@@ -51,111 +173,9 @@ object IsometryIO {
     p.toString
   }.toEither.left.map(_.getMessage)
 
-  /** Učitaj kompozitnu izometriju iz fajla (fileName sa .txt). */
-  def load(fileName: String): Either[String, Iso] = Try {
-    ensureDir()
-    val p = Dir.resolve(fileName)
-    val raw = Files.readAllLines(p).asScala.toVector
-    val stepLines = raw.iterator
-      .map(_.trim)
-      .filter(l => l.nonEmpty && !l.startsWith("#"))
-      .toVector
-
-    val steps: List[Iso] = stepLines.map(parseLine).toList
-    Iso.Composite(steps)
-  }.toEither.left.map(_.getMessage)
-
-  /** Obriši fajl izometrije. */
-  def delete(fileName: String): Either[String, Unit] = Try {
-    ensureDir()
-    val p = Dir.resolve(fileName)
-    Files.deleteIfExists(p)
-    ()
-  }.toEither.left.map(_.getMessage)
-
-  /** Lepo ime za prikaz: čita # name: ako postoji, inače koristi naziv fajla bez .txt. */
-  def displayLabel(fileName: String): String = {
-    readName(fileName).getOrElse(fileName.stripSuffix(".txt"))
-  }
-
-  /** Čita # name: sa prve linije, ako postoji. */
-  def readName(fileName: String): Option[String] = {
-    ensureDir()
-    val p = Dir.resolve(fileName)
-    if (!Files.exists(p)) return None
-    val it = Files.lines(p).iterator()
-    try {
-      if (it.hasNext) {
-        val first = it.next().trim
-        if (first.startsWith(NamePrefix)) Some(first.stripPrefix(NamePrefix).trim)
-        else None
-      } else None
-    } finally {
-      // Java stream se zatvara preko Files.lines(p) autoclose, pa je ok
-    }
-  }
-
-  // ----------------- Parsiranje jedne linije u Iso -----------------
-
-  private def parseLine(line: String): Iso = {
-    val parts = line.split(";").map(_.trim).filter(_.nonEmpty)
-    if (parts.isEmpty) sys.error("Empty isometry step line.")
-    val kind = parts.head
-    val kv = parts.tail.map { token =>
-      val i = token.indexOf('=')
-      if (i <= 0) sys.error(s"Bad token: $token")
-      token.substring(0, i) -> token.substring(i + 1)
-    }.toMap
-
-    def g(k: String): String = kv.getOrElse(k, sys.error(s"Missing param: $k"))
-    def gi(k: String): Int  = g(k).toInt
-
-    val sector = Sector(gi("r1"), gi("c1"), gi("r2"), gi("c2"))
-    val merge: MergeMode = g("merge") match {
-      case "Opaque"      => MergeMode.Opaque
-      case "Transparent" => MergeMode.Transparent
-      case x             => sys.error(s"Unknown merge: $x")
-    }
-    val boundary: BoundaryMode = g("boundary") match {
-      case "Clipping"  => BoundaryMode.Clipping
-      case "Expanding" => BoundaryMode.Expanding
-      case x           => sys.error(s"Unknown boundary: $x")
-    }
-
-    kind match {
-      case "ROTATE90" =>
-        val dir: RotationDir = g("dir") match {
-          case "CW"  => RotationDir.CW
-          case "CCW" => RotationDir.CCW
-          case x     => sys.error(s"Unknown dir: $x")
-        }
-        val center = (gi("cr"), gi("cc"))
-        Rotate90(sector, center, dir, merge, boundary)
-
-      case "REFLECT_ROW" =>
-        Reflect(sector, Axis.Row(gi("r0")), merge, boundary)
-
-      case "REFLECT_COL" =>
-        Reflect(sector, Axis.Col(gi("c0")), merge, boundary)
-
-      case "REFLECT_MAIN" =>
-        Reflect(sector, Axis.Diagonal(Axis.DiagonalKind.Main), merge, boundary)
-
-      case "REFLECT_ANTI" =>
-        Reflect(sector, Axis.Diagonal(Axis.DiagonalKind.Anti), merge, boundary)
-
-      case "TRANSLATE" =>
-        Translate(sector, dy = gi("dy"), dx = gi("dx"), merge, boundary)
-
-      case "CENTRAL" =>
-        val center = (gi("cr"), gi("cc"))
-        CentralSymmetry(sector, center, merge, boundary)
-
-      case other =>
-        sys.error(s"Unknown isometry kind: $other")
-    }
-  }
+  private def ensureDir(): Unit =
+    if (!Files.exists(dir)) Files.createDirectories(dir)
 
   private def sanitize(name: String): String =
-    name.replaceAll("[^a-zA-Z0-9_\\-\\.]", "_")
+    name.replaceAll("[^a-zA-Z0-9_\\-\\.]", "_")  
 }
