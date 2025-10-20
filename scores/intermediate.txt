@@ -1,0 +1,5 @@
+Filip;180;95;12;1;level4.txt
+Ana;210;120;15;2;level4.txt
+Milan;165;88;10;0;level5.txt
+Jovan;245;130;18;3;level5.txt
+Sara;150;80;9;1;level6.txt
