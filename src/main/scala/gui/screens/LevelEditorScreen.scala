@@ -16,13 +16,13 @@ final class LevelEditorScreen(
 
   private var level: Level = LevelOps.buildLevel(levelPath)
 
-  // čuvamo početni nivo za Reset
+  // save original level
   private val originalLevel: Level = level
-  // poslednja primenjena izometrija (za kvazi-inverz)
+  // save applied isometries - for inverse operations
   private var appliedIsos: List[Iso] = Nil
 
 
-  // pick mod za biranje klikom po tabli
+  // pick mode
   private object PickKind extends Enumeration {
     val NonePickKind, SectorStart, SectorEnd, Center = Value
   }
@@ -31,7 +31,7 @@ final class LevelEditorScreen(
 
   private var pickMode: PickKind.Value = NonePickKind
 
-  // parametri izometrije
+  // parameters of isometry
   private var sectorR1 = 0
   private var sectorC1 = 0
   private var sectorR2 = math.max(0, level.rows - 1)
@@ -61,11 +61,10 @@ final class LevelEditorScreen(
         case PickKind.Center =>
           centerR = r; centerC = c
           pickMode = PickKind.NonePickKind
-          board.setHintAt(Some((r, c))) // vizuelni marker centra
+          board.setHintAt(Some((r, c)))
           renderFromLevel()
 
         case PickKind.NonePickKind =>
-          // regularno editovanje
           LevelOps.toggleAt(level, r, c).foreach { lv =>
             level = lv
             renderFromLevel()
@@ -92,7 +91,7 @@ final class LevelEditorScreen(
   top.add(btnReset)
   top.add(btnInverse)
 
-  // Reset na originalni nivo
+  // reset to original level
   btnReset.addActionListener(_ => {
     level = originalLevel
     appliedIsos = Nil
@@ -101,7 +100,7 @@ final class LevelEditorScreen(
     renderFromLevel()
   })
 
-  // Kvazi-inverz poslednje izometrije (radi nad trenutnim levelom)
+  // quasy-inverse on last isometry
   btnInverse.addActionListener(_ => {
     appliedIsos match {
       case iso :: rest =>
@@ -109,7 +108,7 @@ final class LevelEditorScreen(
         IsoOps.safeApply(inv, level) match {
           case Right(lv2) =>
             level = lv2
-            appliedIsos = rest // uspešan inverse → skini sa steka
+            appliedIsos = rest // pop from stack if successful inverse
             board.setHintAt(None)
             pickMode = PickKind.NonePickKind
             renderFromLevel()
@@ -131,7 +130,7 @@ final class LevelEditorScreen(
 
   // Basic/Isometries UI
   private val rightPanel: JComponent =
-    if (isIsometries) buildIsometriesPanel() // ostaje placeholder
+    if (isIsometries) buildIsometriesPanel() // placeholder
     else buildBasicOpsPanel()
 
   setLayout(new BorderLayout())
@@ -168,7 +167,7 @@ final class LevelEditorScreen(
     }
   })
 
-  // inicijalni prikaz
+  // display
   renderFromLevel()
 
   /** Adapter: Level -> GameState (sve Revealed) za BoardPanel.render */
@@ -183,7 +182,7 @@ final class LevelEditorScreen(
 //    val gs = GameState.newGame(boardModel).copy(state = allRevealed, clicks = 0, hintsUsed = 0)
 //    board.render(gs)
 
-    board.renderLevel(level, showNumbers) // ili toggle kasnije
+    board.renderLevel(level, showNumbers)
   }
 
   private def wrapNorth(c: JComponent): JComponent = {
@@ -381,7 +380,7 @@ final class LevelEditorScreen(
     modesPanel.add(boundExp)
     p.add(modesPanel)
 
-    // --- Operacije 1: Rotate ---
+    // --- Operations 1: Rotate ---
     val ops1 = new JPanel(new FlowLayout(FlowLayout.LEFT))
     val btnRotCW = new JButton("Rotate CW 90°")
     val btnRotCCW = new JButton("Rotate CCW 90°")
@@ -389,7 +388,7 @@ final class LevelEditorScreen(
     ops1.add(btnRotCCW)
     p.add(ops1)
 
-    // --- Operacije 2: Reflect Row/Col ---
+    // --- Operations 2: Reflect Row/Col ---
     val ops2 = new JPanel(new FlowLayout(FlowLayout.LEFT))
     val tfRowAxis = new JTextField(3);
     tfRowAxis.setToolTipText("row index")
@@ -406,7 +405,7 @@ final class LevelEditorScreen(
     ops2.add(btnRefCol)
     p.add(ops2)
 
-    // --- Operacije 3: Diagonale ---
+    // --- Operations 3: Diagonale ---
     val ops3 = new JPanel(new FlowLayout(FlowLayout.LEFT))
     val btnRefDiagMain = new JButton("Reflect Main diag")
     val btnRefDiagAnti = new JButton("Reflect Anti diag")
@@ -430,7 +429,7 @@ final class LevelEditorScreen(
     p.add(ops4)
     p.add(buildCustomIsosPanel())
 
-    // --- Helper za čitanje parametara ---
+    // --- Helpers for parsing input ---
     def readParams(): Boolean = {
       def okInt(t: JTextField) = t.getText.trim.nonEmpty && t.getText.trim.forall(ch => ch.isDigit || ch == '-')
 
@@ -451,7 +450,7 @@ final class LevelEditorScreen(
       }
     }
 
-    // --- Handleri (Apply + Undo push) ---
+    // --- Handlers (Apply + Undo push) ---
     btnRotCW.addActionListener(_ => if (readParams()) {
       val iso = LevelIsometries.rotateCW(
         Sector(sectorR1, sectorC1, sectorR2, sectorC2),
@@ -554,7 +553,7 @@ final class LevelEditorScreen(
   private def applyIsoWithUndo(iso: Iso): Unit = {
     IsoOps.safeApply(iso, level) match {
       case Right(lv2) =>
-        // zapamti primenjeni korak (za chain quasi-inverse)
+        // remember iso for inverse
         appliedIsos = iso :: appliedIsos
         level = lv2
         board.setHintAt(None)
@@ -589,11 +588,9 @@ final class LevelEditorScreen(
         }
       }
     }
-
-    // opcionalno: refresh dugme
+    
     val btnReload = new JButton("Reload")
     btnReload.addActionListener(_ => {
-      // rekonstruiši panel naivno:
       val parent = p.getParent
       val idx = parent.asInstanceOf[JComponent].getComponentZOrder(p)
       parent.remove(p)

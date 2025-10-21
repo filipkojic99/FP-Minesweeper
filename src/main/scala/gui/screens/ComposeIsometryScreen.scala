@@ -163,7 +163,7 @@ final class ComposeIsometryScreen(onSaved: () => Unit = () => ()) extends JPanel
     def asInt(tf: JTextField): Option[Int] =
       if (txt(tf).matches("-?\\d+")) Some(txt(tf).toInt) else None
 
-    // sektor
+    // sector
     val allOk =
       List(tfR1,tfC1,tfR2,tfC2).forall(tf => txt(tf).matches("-?\\d+"))
     if (!allOk) {
@@ -345,8 +345,7 @@ final class ComposeIsometryScreen(onSaved: () => Unit = () => ()) extends JPanel
       }
     }
   })
-
-  // init: popuni combobox
+  
   refreshSavedList()
 
   btnReload.addActionListener(_ => refreshSavedList())
@@ -371,9 +370,7 @@ final class ComposeIsometryScreen(onSaved: () => Unit = () => ()) extends JPanel
     }
   })
 
-
-
-  // initial card
+  
   {
     val cl = cards.getLayout.asInstanceOf[CardLayout]
     cl.show(cards, "ROTATE90")

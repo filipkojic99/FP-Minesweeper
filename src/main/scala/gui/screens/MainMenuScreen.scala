@@ -134,11 +134,11 @@ class MainMenuScreen(frame: MainFrame) extends JPanel(new FlowLayout(FlowLayout.
         val diffStr = diff.toString.toLowerCase
         val all = io.ScoreIO.readAll(diffStr)
 
-        val grouped = all.groupBy(_.levelFile).toSeq.sortBy(_._1) // po imenu levela
+        val grouped = all.groupBy(_.levelFile).toSeq.sortBy(_._1)
         val text =
           if (all.isEmpty) "No scores yet."
           else grouped.map { case (level, items) =>
-            val top = items.sortBy(r => (r.score, r.timeSec, r.clicks, r.hints)).take(10) // manji bolji
+            val top = items.sortBy(r => (r.score, r.timeSec, r.clicks, r.hints)).take(10)
             val header = s"----- $level -----"
             val lines = top.zipWithIndex.map { case (r, i) =>
               f"${i + 1}%2d. ${r.name} - score:${r.score}%d  time:${r.timeSec}%d s  clicks:${r.clicks}%d  hints:${r.hints}%d"

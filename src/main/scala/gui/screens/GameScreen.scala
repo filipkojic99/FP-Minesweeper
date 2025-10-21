@@ -192,7 +192,7 @@ final class GameScreen(
     val diff = difficultyFromLevelPath(levelPath)
     val row = ScoreRow(
       name = name.trim,
-      score = gs.score.getOrElse(0), // manji = bolji
+      score = gs.score.getOrElse(0),
       timeSec = gs.elapsedSeconds(),
       clicks = gs.clicks,
       hints = gs.hintsUsed,
