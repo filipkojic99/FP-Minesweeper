@@ -13,16 +13,13 @@ final case class Reflect(
 
   def apply(level: Level): Level = {
     val s0 = sector.normalized
-
-    // 1) Efektivni sektor (S ili S′) kao Option
+    
     val effOpt: Option[Sector] =
       if (!useImageSector) Some(s0)
       else mapSectorVisible(level, s0, boundary) { (r, c) =>
-        // refleksija je samoinverzna → forward mapa = ista mapa
         mapRC(level, s0, r, c)
       }
-
-    // 2) Ako nema vidljive slike u Clipping režimu → vrati neizmenjen level
+    
     effOpt match {
       case None => level
       case Some(effSector) =>

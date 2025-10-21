@@ -7,7 +7,7 @@ import scala.jdk.CollectionConverters._
 
 case class ScoreRow(
                      name: String,
-                     score: Int,     // manji = bolji
+                     score: Int,
                      timeSec: Long,
                      clicks: Int,
                      hints: Int,
@@ -15,14 +15,14 @@ case class ScoreRow(
                    )
 
 object ScoreIO {
-  /** Append u 6-field formatu: name;score;time;clicks;hints;levelFile */
+  /** Appends in 6-field format: name;score;time;clicks;hints;levelFile */
   def append(diff: String, row: ScoreRow): Unit = {
     val p = ScoresFs.fileFor(diff)
     val line = s"${row.name};${row.score};${row.timeSec};${row.clicks};${row.hints};${row.levelFile}\n"
     Files.writeString(p, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
   }
 
-  /** Read 6-field format. Linije sa # ili - se preskaču (komentari/separatori). */
+  /** Reads 6-field format. Lines starting with # or - are skipped (comments/separators). */
   def readAll(diff: String): Vector[ScoreRow] = {
     val p = ScoresFs.fileFor(diff)
     if (!Files.exists(p)) return Vector.empty

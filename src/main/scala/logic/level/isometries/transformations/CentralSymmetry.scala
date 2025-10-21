@@ -11,7 +11,7 @@ final case class CentralSymmetry(
                                   useImageSector: Boolean = false
                                 ) extends Iso with IsoHelpers {
 
-  @inline private def map180(r: Int, c: Int): (Int, Int) = {
+  private def map180(r: Int, c: Int): (Int, Int) = {
     val (cr, cc) = center;
     (2 * cr - r, 2 * cc - c)
   }

@@ -337,7 +337,7 @@ final class LevelEditorScreen(
     sectorPanel.add(new JLabel("Sector r1,c1 – r2,c2:"))
     sectorPanel.add(tfR1);
     sectorPanel.add(tfC1)
-    sectorPanel.add(new JLabel("—"));
+    sectorPanel.add(new JLabel("-"));
     sectorPanel.add(tfR2);
     sectorPanel.add(tfC2)
     sectorPanel.add(btnPickStart);

@@ -22,7 +22,7 @@ case class Sector(r1: Int, c1: Int, r2: Int, c2: Int) {
     r >= s.r1 && r <= s.r2 && c >= s.c1 && c <= s.c2
   }
 
-  /** Axis-aligned presek sa drugim sektorom. */
+  /** Intersection with another sector. */
   def intersect(that: Sector): Option[Sector] = {
     val a = this.normalized
     val b = that.normalized

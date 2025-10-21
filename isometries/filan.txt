@@ -1,4 +1,0 @@
-# name: filan
-ROTATE90;r1=0;c1=0;r2=1;c2=1;cr=2;cc=2;dir=CW;merge=Opaque;boundary=Clipping
-REFLECT_ROW;r1=0;c1=3;r2=1;c2=4;r0=2;merge=Opaque;boundary=Clipping
-REFLECT_ANTI;r1=3;c1=3;r2=4;c2=4;merge=Opaque;boundary=Clipping

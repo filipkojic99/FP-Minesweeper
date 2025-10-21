@@ -20,13 +20,13 @@ object LevelIO {
     }
   }
 
-  /** Pokuša da detektuje difficulty iz sadržaja nivoa i snimi u odgovarajući folder.
-   * Vrati Right(path) ako je OK; Left(errorMsg) ako level nije validan (npr. van opsega).
+  /** Attempts to detect the difficulty from the level content and save it to the corresponding folder.
+      Returns Right(path) if successful; Left(errorMsg) if the level is invalid (e.g., out of range).
    */
   def saveLevelAuto(level: Level): Either[String, String] = {
     LevelValidate.validate(level) match {
       case Right(info) =>
-        Right(saveLevel(level, info.difficulty)) // koristi postojeći saveLevel
+        Right(saveLevel(level, info.difficulty))
       case Left(errs) =>
         val msg = "Level is not valid:\n" + errs.map(_.toString).mkString("• ", "\n• ", "")
         Left(msg)

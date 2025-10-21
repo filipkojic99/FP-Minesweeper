@@ -15,13 +15,13 @@ object IsometryIO {
   private val NamePrefix = "# name:"
 
 
-  /** Puna putanja za zadato "ime" bez ekstenzije. */
+  /** Full path for the given name (without extension). */
   def pathFor(nameNoExt: String): String = {
     ensureDir()
     dir.resolve(s"${sanitize(nameNoExt)}.txt").toString
   }
 
-  /** Listaj sve .txt fajlove iz /isometries, vrati imena fajlova (sa ekstenzijom). */
+  /** List all .txt files from /isometries and return their filenames (with extension). */
   def listFiles(): Seq[String] = {
     if (!Files.exists(dir)) Files.createDirectories(dir)
     val f = dir.toFile
@@ -31,7 +31,7 @@ object IsometryIO {
       .sorted
   }
 
-  /** Učitaj kompozit izometrija iz fajla po imenu (npr. "SpiralCW.txt"). */
+  /** Load a composite isometry from a file by name (e.g., "SpiralCW.txt"). */
   def load(name: String): Either[String, Iso] = {
     val path = dir.resolve(name).toFile
     if (!path.exists()) return Left(s"File not found: $path")
@@ -56,7 +56,7 @@ object IsometryIO {
 
   // --------------------------------------------------------------------------
   // Parsing
-  // Format linije primer:
+  // Example line format:
   // ROTATE90;r1=0;c1=0;r2=4;c2=4;cr=2;cc=2;dir=CW;merge=Opaque;boundary=Clipping
   //
   // REFLECT_ROW;r1=..;c1=..;r2=..;c2=..;r0=..
@@ -155,9 +155,9 @@ object IsometryIO {
   }
 
 
-  /** Snimi kompozitnu izometriju u svoj fajl.
-   * `lines` su linije koraka (bez headera); header sa # name: se dodaje automatski.
-   * Ako fajl postoji, prebrisaće se (možeš dodati flag ako želiš zaštitu).
+  /** Saves a composite isometry into its own file.
+   * lines are step definitions (without header); a header with # name: is added automatically.
+   * If the file already exists, it will be overwritten (you can add a flag for protection if needed).
    */
   def save(nameNoExt: String, lines: Seq[String]): Either[String, String] = Try {
     ensureDir()
@@ -176,7 +176,7 @@ object IsometryIO {
   def listNamesNoExt(): Seq[String] =
     listFiles().map(_.stripSuffix(".txt"))
 
-  /** Pročitaj SIROVE linije koraka iz fajla (preskače prazne i #). */
+  /** Read RAW step lines from a file (skips empty lines and lines starting with #). */
   def readLines(nameNoExt: String): Either[String, Seq[String]] = {
     val p = dir.resolve(s"${sanitize(nameNoExt)}.txt").toFile
     if (!p.exists()) Left(s"File not found: ${p.getAbsolutePath}")

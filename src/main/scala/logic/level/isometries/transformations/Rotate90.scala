@@ -13,11 +13,9 @@ case class Rotate90(
                    ) extends Iso with IsoHelpers {
 
   def apply(level: Level): Level = {
-    // 1) Odredi efektivni sektor (S ili S′ ako je kvazi-inverz)
     val effSector: Sector =
       if (!useImageSector) sector.normalized
       else {
-        // forward smer je SUPROTAN od trenutnog, jer kvazi-inverz treba S′ dobijen originalnom transformacijom
         val forwardDir = dir match {
           case RotationDir.CW => RotationDir.CCW
           case RotationDir.CCW => RotationDir.CW
@@ -33,11 +31,10 @@ case class Rotate90(
 
         mapSectorVisible(level, sector, boundary)(forwardMap) match {
           case Some(sImg) => sImg
-          case None => return level // nema vidljive slike → kvazi-inverz je no-op
+          case None => return level
         }
       }
-
-    // 2) Sada standardna pipeline nad effSector, sa TRENUTNIM 'dir'
+    
     def mapRC(r: Int, c: Int): (Int, Int) = {
       val (cr, cc) = center
       dir match {

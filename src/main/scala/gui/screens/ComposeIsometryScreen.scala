@@ -239,9 +239,9 @@ final class ComposeIsometryScreen(onSaved: () => Unit = () => ()) extends JPanel
     savedRow.add(btnInsertAll)
 
     val sectorRow = new JPanel(new FlowLayout(FlowLayout.LEFT))
-    sectorRow.add(new JLabel("Sector r1,c1 — r2,c2:"))
+    sectorRow.add(new JLabel("Sector r1,c1 - r2,c2:"))
     sectorRow.add(tfR1); sectorRow.add(tfC1)
-    sectorRow.add(new JLabel("—"))
+    sectorRow.add(new JLabel("-"))
     sectorRow.add(tfR2); sectorRow.add(tfC2)
 
     val modesRow = new JPanel(new FlowLayout(FlowLayout.LEFT))
