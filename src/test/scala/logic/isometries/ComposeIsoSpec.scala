@@ -103,7 +103,6 @@ class ComposeIsoSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "compose Translate and Rotate90: different results depending on order (no expanding)" in {
-    // 3x3, mina na (0,0); sektor = ceo 3x3, centar (1,1) => rotacije su in-bounds
     val level = Level(Vector(
       Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
@@ -135,7 +134,6 @@ class ComposeIsoSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "compose CentralSymmetry and Translate; inverse chain returns original (no clipping loss)" in {
-    // 3x3, mina na (0,0)
     val level = Level(Vector(
       Vector(CellContent.Mine, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),

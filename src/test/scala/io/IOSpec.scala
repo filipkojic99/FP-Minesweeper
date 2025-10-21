@@ -103,15 +103,11 @@ class IOSpec extends AnyFlatSpec with Matchers {
     // cleanup
     deleteIfExists(isoDir.resolve(s"$nameNoExt.txt"))
   }
-
-  // ---------------------------------------------------------------------------
-  // DODATO: ScoreIO.append/readAll (end-to-end)
-  // ---------------------------------------------------------------------------
+  
   "ScoreIO.append/readAll" should "round-trip multiple score rows in a fresh diff file" in {
     val diff = "unit_test_diff_intermediate"
     val scorePath = ScoresFs.fileFor(diff)
-
-    // počisti potencijalni stari fajl za determinističan test
+    
     deleteIfExists(scorePath)
 
     val rows = Vector(

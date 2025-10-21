@@ -201,8 +201,7 @@ class Rotate90Spec extends AnyFlatSpec with Matchers {
     )
 
     val result = iso(level)
-
-    // Očekivano (opaque): dodaje se kolona desno (2x3), preslikana mina završava u (1,2)
+    
     val expected = Level(Vector(
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Clear),
       Vector(CellContent.Clear, CellContent.Clear, CellContent.Mine)
@@ -222,7 +221,7 @@ class Rotate90Spec extends AnyFlatSpec with Matchers {
     ))
 
     val iso = rotateCW(
-      sector = Sector(0, 0, 1, 1), // ceo nivo
+      sector = Sector(0, 0, 1, 1),
       center = (0, 1),
       merge = MergeMode.Transparent,
       boundary = BoundaryMode.Clipping
